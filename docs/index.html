@@ -31,6 +31,21 @@
   .list button.on { background: var(--paper2); border-left-color: var(--ink); }
   .list .w { font-weight: 600; font-size: 16px; }
   .list .m { color: var(--muted); font-size: 12.5px; }
+  .nav { display: grid; gap: 4px; margin-bottom: 6px; }
+  .list button.feat { display: flex; align-items: center; gap: 10px; border-left: 0; padding: 7px 8px; background: color-mix(in srgb, var(--c) 9%, transparent); }
+  .list button.feat:hover { background: color-mix(in srgb, var(--c) 18%, transparent); }
+  .list button.feat.on { background: var(--c); color: #fbf8f2; }
+  .list button.feat.on .m { color: rgba(251,248,242,.85); }
+  .ico { flex: none; width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; background: var(--c); color: #fbf8f2; }
+  .ico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .list button.feat.on .ico { background: rgba(251,248,242,.18); }
+  .list button.fold .w::after { content: "▸"; margin-left: 6px; font-size: 12px; display: inline-block; transition: transform .15s; }
+  .list button.fold.open .w::after { transform: rotate(90deg); }
+  .list .sub { margin: 0 0 6px 18px; border-left: 2px solid color-mix(in srgb, #3f7f3a 35%, transparent); }
+  .list .sub button { padding: 5px 10px; } .list .sub .w { font-size: 14.5px; }
+  .qnav { margin-top: 10px; display: flex; gap: 6px; }
+  .chip:disabled { opacity: .4; cursor: default; border-color: var(--line); }
+  .hide { display: none !important; }
   main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
   .head { flex: none; padding: 20px 26px 0; }
   .head .word { font-size: 34px; font-weight: 600; line-height: 1.1; }
@@ -86,6 +101,8 @@
     .list button.on { border-bottom-color: var(--ink); background: var(--ink); color: var(--paper); }
     .list .w { font-size: 14.5px; }
     .list .m { display: none; }
+    .nav, .list .sub { display: contents; }
+    .list button.feat { padding: 3px 9px 3px 4px; gap: 6px; } .ico { width: 24px; height: 24px; } .ico svg { width: 15px; height: 15px; }
     .head { padding: 6px 14px 0; } .head .word { font-size: 19px; } .head .mean { font-size: 13px; }
     .sibs { font-size: 12.5px; }
     .map-wrap { padding: 2px 4px; }
@@ -119,8 +136,8 @@
     </div>
     <div class="tools">
       <div class="legend" id="legend"></div>
-      <label><input type="checkbox" id="ov"> oryginał</label>
-      <label>krycie <input type="range" id="op" min="0" max="100" value="60" aria-label="Krycie oryginału"></label>
+      <label id="ovctl"><input type="checkbox" id="ov"> oryginał</label>
+      <label id="opctl" class="hide">krycie <input type="range" id="op" min="0" max="100" value="60" aria-label="Krycie oryginału"></label>
     </div>
   </main>
   <section class="info">
@@ -278,7 +295,8 @@ function renderQuiz() {
   $("sibs").innerHTML = `<div class="qcard">` + (q ? `<b>${n + 1}.</b> ` +
     (q.m ? `Czy mówisz „${q.m.word}”? <span class="note">‘${q.m.meaning}’</span>` : `Jak mówisz na: <b>‘${q.c.key}’</b>?`) + `<br>` +
     q.labels.map((l, o) => `<button class="chip" data-qa="${o}">${l}</button>`).join("") + `<button class="chip ghost" data-qa="-1">nie wiem</button>`
-    : `Koniec pytań.`) + (n ? `<button class="chip ghost" data-act="undo">cofnij</button>` : "") + `</div>`;
+    : `Koniec pytań.`) + `<div class="qnav"><button class="chip ghost" data-act="undo"${n ? "" : " disabled"}>← cofnij</button>` +
+    (n ? `<button class="chip ghost" data-act="restart">zacznij od nowa</button>` : "") + `</div></div>`;
   const mx = Math.max(...p);
   paths.forEach((el, i) => { el.style.fill = heat(p[i] / mx); el.style.fillOpacity = 1; });
   $("legend").innerHTML = `<span>${sw(heat(0))}mało prawdopodobne</span><span>${sw(heat(.5))}</span><span>${sw(heat(1))}najbardziej prawdopodobne</span>`;
@@ -304,7 +322,7 @@ function compareBlock(a, b) {
 function act(a) {
   if (a === "cmp") { cmpPick = !cmpPick; renderSel(); }
   else if (a === "cmp-x") { cmp = null; renderSel(); }
-  else if (a === "undo") { const [q] = qz.ans.pop(); qz.p = qzPost(qz.ans); qz.q = q; renderQuiz(); }
+  else if (a === "undo") { if (!qz.ans.length) return; const [q] = qz.ans.pop(); qz.p = qzPost(qz.ans); qz.q = q; renderQuiz(); }
   else if (a === "restart") { quizStart(); renderQuiz(); }
 }
 
@@ -330,28 +348,44 @@ function variantFill(c, i) {
   return [stripes(parts), 1, parts.length];
 }
 
-// list: Indeks, WARIANTY (groups), then single words A-Z (words that belong to a group are listed only there)
+// list: feature entries (quiz, stats, index, folded WARIANTY), then single words A-Z (grouped words are listed only under WARIANTY)
+let varOpen = false;
+const ICON = {
+  quiz: `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><path d="M10 8.3a2.2 2.2 0 1 1 3 2c-.7.3-1 .8-1 1.5"/><path d="M12 14.6h.01"/></svg>`,
+  stats: `<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>`,
+  index: `<svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>`,
+  var: `<svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="4.5"/><circle cx="16" cy="9" r="4.5"/><circle cx="12" cy="15.5" r="4.5"/></svg>`,
+};
 const coll = new Intl.Collator("pl");
 function renderList(filter = "") {
   const f = filter.trim().toLowerCase();
   const hit = s => !f || s.toLowerCase().includes(f);
-  const L = $("list"); L.innerHTML = "";
-  const add = (key, w, m) => {
-    const b = document.createElement("button");
-    b.innerHTML = `<div class="w">${w}</div>${m ? `<div class="m">${m}</div>` : ""}`;
+  const L = $("list"), st = [L.scrollTop, L.scrollLeft]; L.innerHTML = "";
+  const btn = (w, m, cls = "", ic = "") => { const b = document.createElement("button"); if (cls) b.className = cls;
+    b.innerHTML = (ic ? `<span class="ico">${ICON[ic]}</span>` : "") + `<span><div class="w">${w}</div>${m ? `<div class="m">${m}</div>` : ""}</span>`; return b; };
+  const add = (key, w, m, to = L, cls = "", ic = "", col = "") => {
+    const b = btn(w, m, cls, ic); if (col) b.style.setProperty("--c", col);
     b.dataset.key = key; b.onclick = () => { sel = cmp = null; cmpPick = false; show(key); $("info-body").scrollTop = 0; };
     if (view && listKey(view) === key) b.classList.add("on");
-    L.appendChild(b);
+    to.appendChild(b);
   };
   const h = t => { const e = document.createElement("h3"); e.textContent = t; L.appendChild(e); };
-  if (hit("skąd jestem quiz")) add("quiz", "Skąd jestem?", "quiz: zgadniemy, skąd pochodzisz");
-  if (hit("statystyki rankingi")) add("stats", "Statystyki", "rankingi i ciekawostki");
-  if (hit("indeks regionalności")) add("index", "Indeks regionalności", "suma wszystkich regionalizmów");
+  const nav = document.createElement("div"); nav.className = "nav"; L.appendChild(nav);
+  if (hit("skąd jestem quiz")) add("quiz", "Skąd jestem?", "quiz: zgadniemy, skąd pochodzisz", nav, "feat", "quiz", "#b5372b");
+  if (hit("statystyki rankingi")) add("stats", "Statystyki", "rankingi i ciekawostki", nav, "feat", "stats", "#2f6b8f");
+  if (hit("indeks regionalności")) add("index", "Indeks regionalności", "suma wszystkich regionalizmów", nav, "feat", "index", "#6b4a9a");
   const cs = DATA.concepts.filter(c => hit(c.key + " " + c.maps.map(m => m.word).join(" "))).sort((a, b) => coll.compare(a.key, b.key));
-  if (cs.length) { h(`Warianty (${cs.length})`);
-    cs.forEach(c => add("c:" + c.key, `‘${c.key}’`, c.maps.map(m => m.word).join(", "))); }
+  if (cs.length) {
+    const open = varOpen || !!f, cur = view && listKey(view).startsWith("c:");
+    const t = btn(`Warianty (${cs.length})`, cur && !open ? `teraz: ‘${listKey(view).slice(2)}’` : "jedno znaczenie, różne słowa", "feat fold" + (open ? " open" : "") + (cur && !open ? " on" : ""), "var");
+    t.style.setProperty("--c", "#3f7f3a"); t.setAttribute("aria-expanded", open);
+    t.onclick = () => { varOpen = !open; renderList($("q").value); }; t.dataset.fold = 1;
+    nav.appendChild(t);
+    if (open) { const s = document.createElement("div"); s.className = "sub"; nav.appendChild(s);
+      cs.forEach(c => add("c:" + c.key, `‘${c.key}’`, c.maps.map(m => m.word).join(", "), s)); } }
   const ms = DATA.maps.filter(m => !conceptOf[m.fbid] && hit(m.word + " " + m.meaning)).sort((a, b) => coll.compare(a.word, b.word));
   if (ms.length) { h(`Słowa i wyrażenia (${ms.length})`); ms.forEach(m => add("m:" + m.fbid, m.word, m.meaning)); }
+  L.scrollTop = st[0]; L.scrollLeft = st[1];
 }
 // the list entry that stands for the current view (a grouped word is represented by its group)
 const listKey = v => v.type === "map" && conceptOf[v.m.fbid] ? "c:" + conceptOf[v.m.fbid].key : v.key;
@@ -361,7 +395,8 @@ function show(key) {
   else if (key.startsWith("c:")) view = {key, type: "concept", c: DATA.concepts.find(c => c.key === key.slice(2))};
   else view = {key, type: "map", m: byFb[key.slice(2)]};
   const lk = listKey(view);
-  [...$("list").querySelectorAll("button")].forEach(b => b.classList.toggle("on", b.dataset.key === lk));
+  if (!varOpen && !$("q").value) renderList();
+  else [...$("list").querySelectorAll("button[data-key]")].forEach(b => b.classList.toggle("on", b.dataset.key === lk));
   $("sibs").innerHTML = "";
   if (view.type === "stats") renderStatsView();
   else if (view.type === "quiz") renderQuiz();
@@ -404,6 +439,7 @@ function show(key) {
   }
   history.replaceState(null, "", "#" + encodeURIComponent(key));
   $("ov").disabled = view.type !== "map";
+  $("ovctl").classList.toggle("hide", view.type !== "map");
   if (view.type === "map") $("orig").setAttribute("href", view.m.img);
   applyOverlay();
   renderSel();
@@ -411,6 +447,7 @@ function show(key) {
 
 function applyOverlay() {
   const on = $("ov").checked && view && view.type === "map";
+  $("opctl").classList.toggle("hide", !on);
   $("orig").setAttribute("opacity", on ? $("op").value / 100 : 0);
 }
 
@@ -471,9 +508,9 @@ $("q").oninput = e => renderList(e.target.value);
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { sel = cmp = null; cmpPick = false; renderSel(); }
   if ((e.key === "ArrowDown" || e.key === "ArrowUp") && document.activeElement !== $("q")) {
-    const btns = [...$("list").querySelectorAll("button")], keys = btns.map(b => b.dataset.key);
+    const btns = [...$("list").querySelectorAll("button[data-key]")], keys = btns.map(b => b.dataset.key);
     const i = keys.indexOf(listKey(view)) + (e.key === "ArrowDown" ? 1 : -1);
-    if (i >= 0 && i < keys.length) { sel = cmp = null; cmpPick = false; show(keys[i]); btns[i].scrollIntoView({block: "nearest"}); e.preventDefault(); }
+    if (i >= 0 && i < keys.length) { sel = cmp = null; cmpPick = false; show(keys[i]); $("list").querySelector(`button[data-key="${CSS.escape(keys[i])}"]`).scrollIntoView({block: "nearest"}); e.preventDefault(); }
   }
 });
 renderList();
