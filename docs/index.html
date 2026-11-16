@@ -65,6 +65,15 @@
   .chip.var { font-size: 11.5px; letter-spacing: 1.2px; font-weight: 600; background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: baseline; }
   .row.click { cursor: pointer; } .row.click:hover span:first-child { text-decoration: underline; }
+  .pw.sel2 { stroke: #2f6b8f; stroke-width: 4; }
+  .tag { display: inline-block; vertical-align: middle; font-size: 11px; letter-spacing: .8px; text-transform: uppercase; font-weight: 600;
+    border: 1px solid var(--ink); border-radius: 3px; padding: 0 6px; margin-left: 4px; }
+  .big { font-size: 19px; font-weight: 600; line-height: 1.3; }
+  .mini { margin: 6px 0 2px; font-size: 13px; color: var(--muted); }
+  .chip.ghost { background: none; color: var(--muted); }
+  .qcard { margin-top: 8px; font-size: 16px; color: var(--ink); }
+  .qcard .chip { font-size: 14px; padding: 3px 12px; margin-top: 7px; }
+  .blk h2 + .big { margin-top: -2px; }
   @media (max-width: 1000px) {
     .list h3 { display: none; }
     .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) 25dvh; }
@@ -84,6 +93,7 @@
     .info { border-left: 0; border-top: 1px solid var(--line); }
     .info-body { padding: 12px 14px; }
     .info footer { padding: 6px 14px 8px; font-size: 11.5px; }
+    .qcard { font-size: 15px; } .qcard .chip { padding: 6px 14px; }
   }
 </style>
 </head>
@@ -152,7 +162,7 @@ const short = n => n.replace("powiat ", "");
 
 const $ = id => document.getElementById(id);
 const svgNS = "http://www.w3.org/2000/svg";
-let view = null, sel = null;
+let view = null, sel = null, cmp = null, cmpPick = false;
 
 // geometry
 let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
@@ -173,6 +183,130 @@ DATA.woj.forEach(w => {
 });
 const pad = 12;
 $("map").setAttribute("viewBox", `${minX - pad} ${minY - pad} ${maxX - minX + 2 * pad} ${maxY - minY + 2 * pad}`);
+
+// ---- statistics, computed in the browser from the levels ----
+const cen = DATA.powiaty.map(p => { const v = p.d.match(/-?\d+(\.\d+)?/g).map(Number); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (let k = 0; k < v.length; k += 2) { x0 = Math.min(x0, v[k]); x1 = Math.max(x1, v[k]); y0 = Math.min(y0, v[k + 1]); y1 = Math.max(y1, v[k + 1]); }
+  return [(x0 + x1) / 2, (y0 + y1) / 2]; });
+const FAR = 0.3 * (maxX - minX); // "far away" = more than ~30% of the country's width
+const dist = (a, b) => Math.hypot(cen[a][0] - cen[b][0], cen[a][1] - cen[b][1]);
+const LOCAL = Math.round(N * 0.05); // a "local" word is in use in at most 5% of powiaty
+DATA.maps.forEach(m => { m.n = m.lv.filter(v => v > 0).length; m.n2 = m.lv.filter(v => v >= 2).length; });
+const wojN = {}; DATA.powiaty.forEach(p => wojN[p.woj] = (wojN[p.woj] || 0) + 1);
+const center = a => { const mu = a.reduce((s, v) => s + v, 0) / a.length, c = a.map(v => v - mu); const nr = Math.sqrt(c.reduce((s, v) => s + v * v, 0)) || 1; return c.map(v => v / nr); };
+const dot = (a, b) => a.reduce((s, v, k) => s + v * b[k], 0); // on centred unit vectors = correlation
+DATA.maps.forEach(m => m.z = center(m.lv));
+const pz = Array.from({length: N}, (_, i) => center(regional.map(m => m.lv[i])));
+const pct = x => Math.round(x * 100) + "%";
+const reachName = n => { const f = n / N; return f <= .05 ? "bardzo lokalne" : f <= .2 ? "lokalne" : f <= .5 ? "regionalne" : f <= .85 ? "szeroko znane" : "ogólnopolskie"; };
+function core(m) { const c = {}; m.lv.forEach((v, i) => { if (v) c[DATA.powiaty[i].woj] = (c[DATA.powiaty[i].woj] || 0) + 1; });
+  const e = Object.entries(c).sort((a, b) => b[1] - a[1]); return {woj: e.length ? e[0][0] : null, share: e.length ? e[0][1] / m.n : 0, nwoj: e.length}; }
+const localN = Array.from({length: N}, (_, i) => DATA.maps.filter(m => m.lv[i] > 0 && m.n <= LOCAL).length);
+const idxRank = idx.map(v => 1 + idx.filter(w => w > v).length);
+const row = (a, b, attr = "") => `<div class="row${attr ? " click" : ""}" ${attr}><span>${a}</span><span class="lv">${b}</span></div>`;
+const H2 = t => `<h2 style="margin-top:18px">${t}</h2>`;
+const heat = t => { const a = [228, 220, 205], b = [181, 55, 43], u = Math.pow(t, .6); return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * u)).join(",")})`; };
+
+function wordStats(m) {
+  const c = core(m);
+  const sim = DATA.maps.filter(x => x !== m).map(x => [x, dot(x.z, m.z)]).filter(([, r]) => r >= .4).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  return `<h2>Zasięg</h2><div class="big">${m.n} z ${N} powiatów <span class="tag">${reachName(m.n)}</span></div>` +
+    `<div class="mini">${m.n2} z nich: „częste” lub „powszechne”</div>` +
+    `<div class="mini">${c.share >= .5 ? `Rdzeń: woj. ${c.woj} (${pct(c.share)} zasięgu)` : `Rozproszone po ${c.nwoj} województwach`}</div>` +
+    (sim.length ? H2("Podobny zasięg") + sim.map(([x, r]) => `<button class="chip" data-key="m:${x.fbid}" title="podobieństwo ${pct(r)}">${x.word}</button>`).join("") : "") +
+    `<div style="height:18px"></div>`;
+}
+function conceptWinners(c) {
+  const win = {};
+  Object.keys(wojN).sort(coll.compare).forEach(w => {
+    const s = c.maps.map((m, k) => [k, m.lv.reduce((t, v, i) => t + (DATA.powiaty[i].woj === w ? v : 0), 0)]).sort((a, b) => b[1] - a[1])[0];
+    if (s[1] > 0) (win[s[0]] = win[s[0]] || []).push(w); });
+  return H2("Wygrywa w województwach") + Object.entries(win).sort((a, b) => b[1].length - a[1].length).map(([k, ws]) =>
+    `<div class="row"><span><i class="dot" style="background:${vcol(+k)}"></i>${c.maps[k].word}</span><span class="lv" style="white-space:normal;text-align:right">${ws.join(", ")}</span></div>`).join("");
+}
+function renderStatsView() {
+  $("word").textContent = "Statystyki";
+  $("mean").textContent = `rankingi z ${DATA.maps.length} map · na mapie: ile lokalnych słów ma powiat`;
+  const mx = Math.max(...localN);
+  paths.forEach((el, i) => { el.style.fill = ink(Math.pow(localN[i] / mx, .7)); el.style.fillOpacity = 1; });
+  const stp = Math.ceil(mx / 5), vals = []; for (let v = 0; v < mx; v += stp) vals.push(v); vals.push(mx);
+  $("legend").innerHTML = vals.map(v => `<span>${sw(ink(Math.pow(v / mx, .7)))}${v}</span>`).join("") +
+    `<span>lokalne słowo = w użyciu w najwyżej ${LOCAL} powiatach</span>`;
+  const byN = DATA.maps.filter(m => m.n > 0).sort((a, b) => a.n - b.n || coll.compare(a.word, b.word));
+  const wrow = (m, b) => row(m.word, b, `data-key="m:${m.fbid}"`);
+  const one = DATA.maps.map(m => [m, core(m)]).filter(([m, c]) => m.n >= 3 && c.share === 1).sort((a, b) => b[0].n - a[0].n).slice(0, 10);
+  const mix = DATA.concepts.map(c => { let cov = 0, mm = 0;
+    for (let i = 0; i < N; i++) { const k = c.maps.filter(m => m.lv[i] > 0).length; if (k) cov++; if (k > 1) mm++; } return [c, mm, cov]; })
+    .sort((a, b) => b[1] / b[2] - a[1] / a[2]);
+  const topLocal = DATA.powiaty.map((p, i) => i).sort((a, b) => localN[b] - localN[a]).slice(0, 6);
+  $("stats").innerHTML = `<h2>Najbardziej lokalne słowa</h2>` + byN.slice(0, 8).map(m => wrow(m, `${m.n} pow.`)).join("") +
+    H2("Najbardziej powszechne") + byN.slice(-8).reverse().map(m => wrow(m, `${m.n} z ${N}`)).join("") +
+    H2("Słowa jednego województwa") + one.map(([m, c]) => wrow(m, `${m.n} pow. · ${c.woj}`)).join("") +
+    H2("Najwięcej lokalnych słów") + topLocal.map(i => row(short(DATA.powiaty[i].name), `${localN[i]} słów`, `data-sel="${i}"`)).join("") +
+    H2("Warianty: najwięcej mieszania") + mix.map(([c, a, b]) => row(`‘${c.key}’`, `${a} z ${b} pow.`, `data-key="c:${c.key}"`)).join("");
+  $("src").innerHTML = `Mieszanie = powiaty, w których działa kilka słów naraz, spośród powiatów, gdzie działa którekolwiek. ${DATA.note}`;
+}
+
+// ---- "Skąd jestem?" quiz: Bayes over powiaty, adaptive questions ----
+const PL = [.08, .35, .6, .85]; // chance that someone from a powiat uses the word, by map level
+function norm(lk) { return lk.map(a => a.map((x, i) => x / lk.reduce((s, b) => s + b[i], 0))); }
+const qPool = [];
+DATA.concepts.forEach(c => { const lk = c.maps.map(m => m.lv.map(v => PL[v]));
+  lk.push(Array.from({length: N}, (_, i) => .5 * c.maps.reduce((s, m) => s * (1 - PL[m.lv[i]]), 1)));
+  qPool.push({c, labels: [...c.maps.map(m => m.word), "inaczej"], v: norm(lk)}); });
+DATA.maps.filter(m => !conceptOf[m.fbid] && m.n >= N * .04 && m.n <= N * .85).forEach(m =>
+  qPool.push({m, labels: ["tak", "nie"], v: [m.lv.map(v => PL[v]), m.lv.map(v => 1 - PL[v])]}));
+const ent = p => { let h = 0; for (const x of p) if (x > 0) h -= x * Math.log(x); return h; };
+function qzPost(ans) { const p = new Array(N).fill(1 / N);
+  ans.forEach(([q, o]) => { if (o < 0) return; let s = 0; for (let i = 0; i < N; i++) s += (p[i] *= q.v[o][i]); for (let i = 0; i < N; i++) p[i] /= s; });
+  return p; }
+function qzNext(p, ans, rnd = true) {
+  const asked = new Set(ans.map(a => a[0])), h0 = ent(p);
+  const sc = qPool.filter(q => !asked.has(q)).map(q => { let eh = 0;
+    q.v.forEach(v => { let s = 0; const r = p.map((x, i) => { const y = x * v[i]; s += y; return y; }); if (s > 0) eh += s * ent(r.map(y => y / s)); });
+    return [q, h0 - eh]; }).sort((a, b) => b[1] - a[1]);
+  return sc.length ? sc[rnd ? Math.floor(Math.random() * Math.min(3, sc.length)) : 0][0] : null;
+}
+const qz = {ans: [], p: null, q: null};
+function quizStart() { qz.ans = []; qz.p = qzPost([]); qz.q = qzNext(qz.p, []); }
+function quizAnswer(o) { if (!qz.q) return; qz.ans.push([qz.q, o]); qz.p = qzPost(qz.ans); qz.q = qzNext(qz.p, qz.ans); renderQuiz(); }
+function renderQuiz() {
+  if (!qz.p) quizStart();
+  const p = qz.p, n = qz.ans.length, q = qz.q;
+  $("word").textContent = "Skąd jestem?";
+  $("mean").textContent = "Odpowiadaj na pytania o słowa, a mapa pokaże, skąd najpewniej pochodzisz.";
+  $("sibs").innerHTML = `<div class="qcard">` + (q ? `<b>${n + 1}.</b> ` +
+    (q.m ? `Czy mówisz „${q.m.word}”? <span class="note">‘${q.m.meaning}’</span>` : `Jak mówisz na: <b>‘${q.c.key}’</b>?`) + `<br>` +
+    q.labels.map((l, o) => `<button class="chip" data-qa="${o}">${l}</button>`).join("") + `<button class="chip ghost" data-qa="-1">nie wiem</button>`
+    : `Koniec pytań.`) + (n ? `<button class="chip ghost" data-act="undo">cofnij</button>` : "") + `</div>`;
+  const mx = Math.max(...p);
+  paths.forEach((el, i) => { el.style.fill = heat(p[i] / mx); el.style.fillOpacity = 1; });
+  $("legend").innerHTML = `<span>${sw(heat(0))}mało prawdopodobne</span><span>${sw(heat(.5))}</span><span>${sw(heat(1))}najbardziej prawdopodobne</span>`;
+  const top = p.map((x, i) => [x, i]).sort((a, b) => b[0] - a[0]).slice(0, 5);
+  const wp = {}; p.forEach((x, i) => wp[DATA.powiaty[i].woj] = (wp[DATA.powiaty[i].woj] || 0) + x);
+  const tw = Object.entries(wp).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  $("stats").innerHTML = n ? `<h2>Najpewniej</h2><div class="big">woj. ${tw[0][0]} <span class="tag">${pct(tw[0][1])}</span></div>` +
+      tw.slice(1).map(([w, x]) => row(`woj. ${w}`, pct(x))).join("") +
+      H2("Powiaty") + top.map(([x, i]) => row(short(DATA.powiaty[i].name), pct(x), `data-sel="${i}"`)).join("") +
+      H2(`Twoje odpowiedzi (${n})`) + qz.ans.map(([q, o]) => row(q.m ? q.m.word : `‘${q.c.key}’`, o < 0 ? "nie wiem" : q.labels[o])).join("") +
+      `<div style="margin-top:10px"><button class="chip ghost" data-act="restart">zacznij od nowa</button></div>`
+    : `<h2>Jak to działa</h2><div class="note">Każda odpowiedź zawęża mapę. Następne pytanie to zawsze to, które najwięcej rozstrzyga. Po 8–12 pytaniach wynik zwykle jest już wyraźny.</div>`;
+  $("src").innerHTML = `Model: poziom na mapie = szansa, że ktoś stamtąd używa słowa (brak 8%, rzadkie 35%, częste 60%, powszechne 85%). Każdy powiat liczy się tak samo, bez względu na liczbę mieszkańców. To zabawa, nie test naukowy. ${DATA.note}`;
+}
+function compareBlock(a, b) {
+  const B = DATA.powiaty[b];
+  const only = (x, y) => DATA.maps.filter(m => m.lv[x] >= 2 && m.lv[y] === 0).sort((u, w) => w.lv[x] - u.lv[x] || u.n - w.n);
+  const both = DATA.maps.filter(m => m.lv[a] > 0 && m.lv[b] > 0).length;
+  const chips = ms => ms.slice(0, 10).map(m => `<button class="chip" data-key="m:${m.fbid}">${m.word}</button>`).join("") || `<span class="note">brak</span>`;
+  return `<div class="mini" style="color:var(--ink)">Porównanie z: <b>${short(B.name)}</b> (${B.woj}) <button class="chip ghost" data-act="cmp-x" title="zamknij porównanie">×</button><br>podobieństwo ${pct(dot(pz[a], pz[b]))} · wspólne słowa: ${both}</div>` +
+    `<div class="mini">Często tutaj, nie ma tam:</div>${chips(only(a, b))}<div class="mini">Często tam, nie ma tutaj:</div>${chips(only(b, a))}`;
+}
+function act(a) {
+  if (a === "cmp") { cmpPick = !cmpPick; renderSel(); }
+  else if (a === "cmp-x") { cmp = null; renderSel(); }
+  else if (a === "undo") { const [q] = qz.ans.pop(); qz.p = qzPost(qz.ans); qz.q = q; renderQuiz(); }
+  else if (a === "restart") { quizStart(); renderQuiz(); }
+}
 
 // variants view: a powiat with several words gets diagonal stripes, one per word, width = level
 const STRIPE = 9, patMade = {};
@@ -205,11 +339,13 @@ function renderList(filter = "") {
   const add = (key, w, m) => {
     const b = document.createElement("button");
     b.innerHTML = `<div class="w">${w}</div>${m ? `<div class="m">${m}</div>` : ""}`;
-    b.dataset.key = key; b.onclick = () => { sel = null; show(key); $("info-body").scrollTop = 0; };
+    b.dataset.key = key; b.onclick = () => { sel = cmp = null; cmpPick = false; show(key); $("info-body").scrollTop = 0; };
     if (view && listKey(view) === key) b.classList.add("on");
     L.appendChild(b);
   };
   const h = t => { const e = document.createElement("h3"); e.textContent = t; L.appendChild(e); };
+  if (hit("skąd jestem quiz")) add("quiz", "Skąd jestem?", "quiz: zgadniemy, skąd pochodzisz");
+  if (hit("statystyki rankingi")) add("stats", "Statystyki", "rankingi i ciekawostki");
   if (hit("indeks regionalności")) add("index", "Indeks regionalności", "suma wszystkich regionalizmów");
   const cs = DATA.concepts.filter(c => hit(c.key + " " + c.maps.map(m => m.word).join(" "))).sort((a, b) => coll.compare(a.key, b.key));
   if (cs.length) { h(`Warianty (${cs.length})`);
@@ -221,13 +357,15 @@ function renderList(filter = "") {
 const listKey = v => v.type === "map" && conceptOf[v.m.fbid] ? "c:" + conceptOf[v.m.fbid].key : v.key;
 
 function show(key) {
-  if (key === "index") view = {key, type: "index"};
+  if (key === "index" || key === "stats" || key === "quiz") view = {key, type: key};
   else if (key.startsWith("c:")) view = {key, type: "concept", c: DATA.concepts.find(c => c.key === key.slice(2))};
   else view = {key, type: "map", m: byFb[key.slice(2)]};
   const lk = listKey(view);
   [...$("list").querySelectorAll("button")].forEach(b => b.classList.toggle("on", b.dataset.key === lk));
   $("sibs").innerHTML = "";
-  if (view.type === "index") {
+  if (view.type === "stats") renderStatsView();
+  else if (view.type === "quiz") renderQuiz();
+  else if (view.type === "index") {
     $("word").textContent = "Indeks regionalności";
     $("mean").textContent = `suma poziomów ${regional.length} regionalizmów w każdym powiecie`;
     paths.forEach((el, i) => { el.style.fill = ink(Math.pow(idx[i] / idxMax, 0.8)); el.style.fillOpacity = 1; });
@@ -246,7 +384,7 @@ function show(key) {
     $("legend").innerHTML = c.maps.map((m, k) => `<span><i class="dot" style="background:${vcol(k)}"></i>${m.word} <small>(${used[k]})</small></span>`).join("") +
       `<span>${sw(stripes([[0, 2], [1, 2]]))}kilka naraz <small>(${mixed})</small></span><span>${sw(LV[0].fill)}brak</span>`;
     $("stats").innerHTML = `<h2>Warianty</h2>` + c.maps.map((m, k) =>
-      `<div class="row click" data-key="m:${m.fbid}"><span><i class="dot" style="background:${vcol(k)}"></i>${m.word}</span><span class="lv">${used[k]} pow., w tym ${m.lv.filter(v => v >= 2).length} często</span></div>`).join("");
+      `<div class="row click" data-key="m:${m.fbid}"><span><i class="dot" style="background:${vcol(k)}"></i>${m.word}</span><span class="lv">${used[k]} pow., w tym ${m.lv.filter(v => v >= 2).length} często</span></div>`).join("") + conceptWinners(c);
     $("src").innerHTML = `Kolor = słowo używane w powiecie, jaśniej = rzadziej. Paski = kilka słów w tym samym powiecie; szerszy pasek = częściej używane. Liczby w legendzie: powiaty, w których słowo jest w użyciu. ${DATA.note}`;
   } else {
     const m = view.m;
@@ -260,7 +398,7 @@ function show(key) {
     $("legend").innerHTML = LV.slice().reverse().map(l => `<span>${sw(l.fill)}${l.name} <small>(${cnt[l.k]})</small></span>`).join("");
     const byW = {}; DATA.powiaty.forEach((p, i) => { if (m.lv[i] >= 2) byW[p.woj] = (byW[p.woj] || 0) + 1; });
     const top = Object.entries(byW).sort((a, b) => b[1] - a[1]).slice(0, 6);
-    $("stats").innerHTML = `<h2>Gdzie najczęściej</h2>` + (top.length ? top.map(([w, n]) =>
+    $("stats").innerHTML = wordStats(m) + `<h2>Gdzie najczęściej</h2>` + (top.length ? top.map(([w, n]) =>
       `<div class="row"><span>${w}</span><span class="lv">${n} pow.</span></div>`).join("") : `<div class="note">Brak powiatów z poziomem „częste” lub wyżej.</div>`);
     $("src").innerHTML = `Ankieta: ${m.survey}.<br>Źródło: <a href="${m.source}" target="_blank" rel="noopener">Świetlan Maps na Facebooku</a> (Michał Świetliński).<br>${DATA.note}`;
   }
@@ -277,11 +415,19 @@ function applyOverlay() {
 }
 
 function renderSel() {
-  paths.forEach((el, i) => el.classList.toggle("sel", i === sel));
+  paths.forEach((el, i) => { el.classList.toggle("sel", i === sel); el.classList.toggle("sel2", i === cmp); });
   if (sel === null) { $("sel-blk").innerHTML = `<h2>Powiat</h2><div class="note">Kliknij powiat, żeby zobaczyć, jak się tam mówi.</div>`; return; }
   const p = DATA.powiaty[sel];
   const rows = DATA.maps.filter(m => m.lv[sel] > 0).sort((a, b) => b.lv[sel] - a.lv[sel] || coll.compare(a.word, b.word));
-  $("sel-blk").innerHTML = `<h2>${p.name}</h2><div class="note" style="margin-bottom:8px">woj. ${p.woj} · ${rows.length} z ${DATA.maps.length} słów w użyciu</div>` +
+  let h = `<h2>${p.name}</h2><div class="note" style="margin-bottom:8px">woj. ${p.woj} · ${rows.length} z ${DATA.maps.length} słów w użyciu · ${idxRank[sel]}. miejsce z ${N} w indeksie regionalności</div>`;
+  h += cmp !== null ? compareBlock(sel, cmp) : `<button class="chip ghost" data-act="cmp">${cmpPick ? "kliknij drugi powiat na mapie…" : "porównaj z innym powiatem"}</button>`;
+  const loc = rows.filter(m => m.n <= LOCAL).sort((a, b) => a.n - b.n);
+  if (loc.length) h += H2("Prawie tylko tutaj") + loc.map(m => row(m.word, `w ${m.n} pow.`, `data-key="m:${m.fbid}"`)).join("");
+  const sim = DATA.powiaty.map((q, i) => [i, dot(pz[sel], pz[i])]).filter(([i]) => i !== sel).sort((a, b) => b[1] - a[1]);
+  const far = sim.filter(([i]) => dist(i, sel) > FAR).slice(0, 2);
+  h += H2("Mówi się podobnie jak w") + sim.slice(0, 3).map(([i, r]) => row(short(DATA.powiaty[i].name), pct(r), `data-sel="${i}"`)).join("") +
+    (far.length ? `<div class="mini">daleko stąd:</div>` + far.map(([i, r]) => row(`${short(DATA.powiaty[i].name)} <small>(${DATA.powiaty[i].woj})</small>`, pct(r), `data-sel="${i}"`)).join("") : "");
+  $("sel-blk").innerHTML = h + H2("Wszystkie słowa w użyciu") +
     rows.map(m => `<div class="row click" data-key="m:${m.fbid}"><span>${m.word}</span><span class="lv">${sw(LV[m.lv[sel]].fill)}${LV[m.lv[sel]].name}</span></div>`).join("");
 }
 
@@ -292,6 +438,8 @@ $("g-pw").addEventListener("mousemove", e => {
   const i = +e.target.dataset.i, p = DATA.powiaty[i];
   let body;
   if (view.type === "index") body = `${idx[i]} pkt regionalności`;
+  else if (view.type === "stats") body = `${localN[i]} lokalnych słów`;
+  else if (view.type === "quiz") body = `${pct(qz.p[i])} szans`;
   else if (view.type === "concept") body = view.c.maps.map((m, k) => [m, k]).sort((a, b) => b[0].lv[i] - a[0].lv[i]).map(([m, k]) =>
     `<div><i class="dot" style="background:${vcol(k)};opacity:${m.lv[i] ? 1 : .25}"></i>${m.word}: ${LV[m.lv[i]].name}</div>`).join("");
   else {
@@ -307,25 +455,30 @@ $("g-pw").addEventListener("mousemove", e => {
 $("g-pw").addEventListener("mouseleave", () => tip.style.display = "none");
 $("g-pw").addEventListener("click", e => {
   if (!e.target.dataset || e.target.dataset.i === undefined) return;
-  const i = +e.target.dataset.i; sel = sel === i ? null : i; renderSel();
+  const i = +e.target.dataset.i;
+  if (cmpPick && sel !== null && i !== sel) { cmp = i; cmpPick = false; } else { sel = sel === i ? null : i; cmp = null; cmpPick = false; }
+  renderSel();
 });
 document.addEventListener("click", e => {
+  const a = e.target.closest("[data-sel],[data-qa],[data-act]");
+  if (a) { if (a.dataset.sel !== undefined) { sel = +a.dataset.sel; cmp = null; cmpPick = false; renderSel(); }
+    else if (a.dataset.qa !== undefined) quizAnswer(+a.dataset.qa); else act(a.dataset.act); return; }
   const t = e.target.closest("[data-key]");
   if (t && !t.closest("#list")) show(t.dataset.key);
 });
 $("ov").onchange = applyOverlay; $("op").oninput = applyOverlay;
 $("q").oninput = e => renderList(e.target.value);
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { sel = null; renderSel(); }
+  if (e.key === "Escape") { sel = cmp = null; cmpPick = false; renderSel(); }
   if ((e.key === "ArrowDown" || e.key === "ArrowUp") && document.activeElement !== $("q")) {
     const btns = [...$("list").querySelectorAll("button")], keys = btns.map(b => b.dataset.key);
     const i = keys.indexOf(listKey(view)) + (e.key === "ArrowDown" ? 1 : -1);
-    if (i >= 0 && i < keys.length) { sel = null; show(keys[i]); btns[i].scrollIntoView({block: "nearest"}); e.preventDefault(); }
+    if (i >= 0 && i < keys.length) { sel = cmp = null; cmpPick = false; show(keys[i]); btns[i].scrollIntoView({block: "nearest"}); e.preventDefault(); }
   }
 });
 renderList();
 const start = decodeURIComponent(location.hash.slice(1));
-const valid = k => k === "index" || (k.startsWith("m:") && byFb[k.slice(2)]) || (k.startsWith("c:") && DATA.concepts.some(c => c.key === k.slice(2)));
+const valid = k => ["index", "stats", "quiz"].includes(k) || (k.startsWith("m:") && byFb[k.slice(2)]) || (k.startsWith("c:") && DATA.concepts.some(c => c.key === k.slice(2)));
 show(valid(start) ? start : DATA.concepts.length ? "c:" + DATA.concepts[0].key : "m:" + DATA.maps[0].fbid);
 </script>
 </body>
