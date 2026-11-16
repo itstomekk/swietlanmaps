@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Świetlan Maps · przeglądarka map regionalizmów</title>
-<meta name="description" content="Interaktywna przeglądarka map regionalizmów Świetlan Maps: słowa, powiaty, porównania.">
+<meta name="description" content="Interaktywna przeglądarka map regionalizmów Świetlan Maps: słowa, powiaty, warianty.">
 <link rel="icon" href="data:,">
 <style>
   :root {
@@ -12,15 +12,17 @@
     --l0: #e4dccd; --l1: #e4dccd; --l1s: #6f6458; --l2: #df9a45; --l3: #b5372b;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink);
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink);
     font: 15px/1.45 "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
-  .app { display: grid; grid-template-columns: 270px 1fr 300px; height: 100vh; }
-  aside, .info { overflow-y: auto; padding: 22px 18px; }
-  aside { border-right: 1px solid var(--line); }
-  .info { border-left: 1px solid var(--line); }
-  h1 { font-size: 22px; line-height: 1.15; margin: 0 0 4px; font-weight: 600; letter-spacing: .2px; }
-  .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
-  .sub a { color: var(--ink); }
+  .app { display: grid; grid-template-columns: 270px minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr);
+    height: 100vh; height: 100dvh; }
+  aside { display: flex; flex-direction: column; min-height: 0; padding: 22px 18px 0; border-right: 1px solid var(--line); }
+  .list { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 18px; }
+  .info { display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--line); }
+  .info-body { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 18px; }
+  .info footer { flex: none; border-top: 1px solid var(--line); padding: 10px 18px 12px; font-size: 12.5px; color: var(--muted); }
+  .info footer a { color: var(--ink); }
+  h1 { font-size: 22px; line-height: 1.15; margin: 0 0 14px; font-weight: 600; letter-spacing: .2px; }
   input[type=search] { width: 100%; padding: 7px 10px; border: 1px solid var(--line); background: #fbf8f2;
     font: inherit; font-size: 14px; border-radius: 3px; color: var(--ink); margin-bottom: 10px; }
   .list button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit;
@@ -29,9 +31,8 @@
   .list button.on { background: var(--paper2); border-left-color: var(--ink); }
   .list .w { font-weight: 600; font-size: 16px; }
   .list .m { color: var(--muted); font-size: 12.5px; }
-  .list .sep { border-top: 1px solid var(--line); margin: 8px 0; }
-  main { position: relative; display: flex; flex-direction: column; min-width: 0; }
-  .head { padding: 20px 26px 0; }
+  main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+  .head { flex: none; padding: 20px 26px 0; }
   .head .word { font-size: 34px; font-weight: 600; line-height: 1.1; }
   .head .mean { color: var(--muted); font-style: italic; }
   .map-wrap { flex: 1; min-height: 0; position: relative; padding: 6px 16px 10px; }
@@ -40,7 +41,7 @@
   .pw:hover { stroke: var(--ink); stroke-width: 2.4; }
   .pw.sel { stroke: var(--ink); stroke-width: 3.4; }
   .woj { fill: none; stroke: var(--ink); stroke-width: 2; opacity: .55; pointer-events: none; }
-  .tools { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; padding: 0 26px 16px; font-size: 13.5px; color: var(--muted); }
+  .tools { flex: none; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; padding: 0 26px 16px; font-size: 13.5px; color: var(--muted); }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .sw { width: 18px; height: 12px; display: inline-block; border: 1px solid rgba(0,0,0,.12); }
@@ -61,20 +62,28 @@
   .chip { display: inline-block; border: 1px solid var(--line); border-radius: 12px; padding: 1px 9px; margin: 2px 3px 2px 0;
     background: #fbf8f2; color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
   .chip:hover { border-color: var(--ink); }
+  .chip.var { font-size: 11.5px; letter-spacing: 1.2px; font-weight: 600; background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: baseline; }
   .row.click { cursor: pointer; } .row.click:hover span:first-child { text-decoration: underline; }
   @media (max-width: 1000px) {
     .list h3 { display: none; }
-    .app { grid-template-columns: 1fr; height: auto; }
-    aside { border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
-    .list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-    .list button { width: auto; white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; }
+    .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) 25dvh; }
+    aside { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 10px; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 12px 4px; }
+    h1 { font-size: 17px; margin: 0; white-space: nowrap; }
+    input[type=search] { flex: 1; width: auto; min-width: 0; margin: 0; padding: 5px 9px; }
+    .list { width: 100%; margin-top: 6px; }
+    .list { flex: none; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding-bottom: 4px; }
+    .list button { width: auto; white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; padding: 5px 9px; }
     .list button.on { border-bottom-color: var(--ink); background: var(--ink); color: var(--paper); }
-    .list .m, .list .sep { display: none; }
-    .map-wrap { height: 92vw; max-height: 640px; padding: 4px 6px; }
-    .head { padding: 14px 16px 0; } .head .word { font-size: 28px; }
-    .tools { padding: 0 16px 12px; }
+    .list .w { font-size: 14.5px; }
+    .list .m { display: none; }
+    .head { padding: 6px 14px 0; } .head .word { font-size: 19px; } .head .mean { font-size: 13px; }
+    .sibs { font-size: 12.5px; }
+    .map-wrap { padding: 2px 4px; }
+    .tools { padding: 0 14px 6px; gap: 4px 10px; font-size: 12px; line-height: 1.3; } .legend { gap: 2px 8px; }
     .info { border-left: 0; border-top: 1px solid var(--line); }
+    .info-body { padding: 12px 14px; }
+    .info footer { padding: 6px 14px 8px; font-size: 11.5px; }
   }
 </style>
 </head>
@@ -82,7 +91,6 @@
 <div class="app">
   <aside>
     <h1>Świetlan Maps</h1>
-    <div class="sub">Przeglądarka map regionalizmów. Mapy i ankiety: <a href="https://www.facebook.com/swietlanmaps" target="_blank" rel="noopener">Michał Świetliński</a></div>
     <input type="search" id="q" placeholder="Szukaj słowa lub znaczenia…" aria-label="Szukaj słowa">
     <div class="list" id="list"></div>
   </aside>
@@ -106,9 +114,12 @@
     </div>
   </main>
   <section class="info">
-    <div class="blk" id="sel-blk"><h2>Powiat</h2><div class="note">Kliknij powiat, żeby zobaczyć, jak się tam mówi.</div></div>
-    <div class="blk" id="stats"></div>
-    <div class="blk note" id="src"></div>
+    <div class="info-body" id="info-body">
+      <div class="blk" id="sel-blk"></div>
+      <div class="blk" id="stats"></div>
+      <div class="blk note" id="src"></div>
+    </div>
+    <footer>Przeglądarka map regionalizmów. Mapy i ankiety: <a href="https://www.facebook.com/swietlanmaps" target="_blank" rel="noopener">Michał Świetliński</a></footer>
   </section>
 </div>
 <div class="tip" id="tip"></div>
@@ -121,6 +132,8 @@ const LV = [
   {k: 3, name: "powszechne", fill: "#b5372b"},
 ];
 const VPAL = ["#b5372b", "#2f6b8f", "#e08a1e", "#3f7f3a", "#6b4a9a", "#1f8a86", "#c2577f", "#3b3531"];
+const vcol = k => VPAL[k % VPAL.length];
+const VOP = [0, .38, .7, 1]; // colour strength per level in the variants view
 const N = DATA.powiaty.length;
 DATA.maps.forEach(m => {
   m.lv = [...m.L].map(Number);
@@ -161,17 +174,29 @@ DATA.woj.forEach(w => {
 const pad = 12;
 $("map").setAttribute("viewBox", `${minX - pad} ${minY - pad} ${maxX - minX + 2 * pad} ${maxY - minY + 2 * pad}`);
 
-// concept view: which word wins in each powiat
-function conceptWinner(c, i) {
-  let best = null, bs = -1;
-  c.maps.forEach((m, k) => {
-    const s = m.lv[i] * 10 + m.sh[i][2] * 3 + m.sh[i][1] * 2 + m.sh[i][0];
-    if (m.lv[i] > 0 && s > bs) { bs = s; best = k; }
-  });
-  return best;
+// variants view: a powiat with several words gets diagonal stripes, one per word, width = level
+const STRIPE = 9, patMade = {};
+function stripes(parts) { // parts: [[variantIndex, level], ...]
+  const id = "st-" + parts.map(([k, l]) => k + "_" + l).join("-");
+  if (!patMade[id]) {
+    const tot = parts.reduce((s, [, l]) => s + l, 0) * STRIPE;
+    const pt = document.createElementNS(svgNS, "pattern");
+    pt.id = id; pt.setAttribute("patternUnits", "userSpaceOnUse");
+    pt.setAttribute("width", tot); pt.setAttribute("height", tot); pt.setAttribute("patternTransform", "rotate(45)");
+    let x = 0, h = `<rect width="${tot}" height="${tot}" fill="#f4efe6"/>`;
+    parts.forEach(([k, l]) => { h += `<rect x="${x}" width="${l * STRIPE}" height="${tot}" fill="${vcol(k)}"/>`; x += l * STRIPE; }); // full colour: stripe width carries the level
+    pt.innerHTML = h; $("map").querySelector("defs").appendChild(pt); patMade[id] = 1;
+  }
+  return `url(#${id})`;
+}
+function variantFill(c, i) {
+  const parts = c.maps.map((m, k) => [k, m.lv[i]]).filter(([, l]) => l > 0).sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+  if (!parts.length) return [LV[0].fill, 1, 0];
+  if (parts.length === 1) return [vcol(parts[0][0]), VOP[parts[0][1]], 1];
+  return [stripes(parts), 1, parts.length];
 }
 
-// list
+// list: Indeks, WARIANTY (groups), then single words A-Z (words that belong to a group are listed only there)
 const coll = new Intl.Collator("pl");
 function renderList(filter = "") {
   const f = filter.trim().toLowerCase();
@@ -180,24 +205,27 @@ function renderList(filter = "") {
   const add = (key, w, m) => {
     const b = document.createElement("button");
     b.innerHTML = `<div class="w">${w}</div>${m ? `<div class="m">${m}</div>` : ""}`;
-    b.dataset.key = key; b.onclick = () => show(key);
-    if (view && view.key === key) b.classList.add("on");
+    b.dataset.key = key; b.onclick = () => { sel = null; show(key); $("info-body").scrollTop = 0; };
+    if (view && listKey(view) === key) b.classList.add("on");
     L.appendChild(b);
   };
   const h = t => { const e = document.createElement("h3"); e.textContent = t; L.appendChild(e); };
   if (hit("indeks regionalności")) add("index", "Indeks regionalności", "suma wszystkich regionalizmów");
-  const cs = DATA.concepts.filter(c => hit(c.key + " " + c.maps.map(m => m.word).join(" ")));
-  if (cs.length) { h(`Jedno znaczenie, wiele słów (${cs.length})`);
+  const cs = DATA.concepts.filter(c => hit(c.key + " " + c.maps.map(m => m.word).join(" "))).sort((a, b) => coll.compare(a.key, b.key));
+  if (cs.length) { h(`Warianty (${cs.length})`);
     cs.forEach(c => add("c:" + c.key, `‘${c.key}’`, c.maps.map(m => m.word).join(", "))); }
-  const ms = DATA.maps.filter(m => hit(m.word + " " + m.meaning)).sort((a, b) => coll.compare(a.word, b.word));
-  if (ms.length) { h(`Słowa (${ms.length})`); ms.forEach(m => add("m:" + m.fbid, m.word, m.meaning)); }
+  const ms = DATA.maps.filter(m => !conceptOf[m.fbid] && hit(m.word + " " + m.meaning)).sort((a, b) => coll.compare(a.word, b.word));
+  if (ms.length) { h(`Słowa i wyrażenia (${ms.length})`); ms.forEach(m => add("m:" + m.fbid, m.word, m.meaning)); }
 }
+// the list entry that stands for the current view (a grouped word is represented by its group)
+const listKey = v => v.type === "map" && conceptOf[v.m.fbid] ? "c:" + conceptOf[v.m.fbid].key : v.key;
 
 function show(key) {
   if (key === "index") view = {key, type: "index"};
   else if (key.startsWith("c:")) view = {key, type: "concept", c: DATA.concepts.find(c => c.key === key.slice(2))};
   else view = {key, type: "map", m: byFb[key.slice(2)]};
-  [...$("list").querySelectorAll("button")].forEach(b => b.classList.toggle("on", b.dataset.key === key));
+  const lk = listKey(view);
+  [...$("list").querySelectorAll("button")].forEach(b => b.classList.toggle("on", b.dataset.key === lk));
   $("sibs").innerHTML = "";
   if (view.type === "index") {
     $("word").textContent = "Indeks regionalności";
@@ -211,26 +239,22 @@ function show(key) {
   } else if (view.type === "concept") {
     const c = view.c;
     $("word").textContent = c.maps.map(m => m.word).join(" · ");
-    $("mean").textContent = `‘${c.key}’: które słowo dominuje w powiecie`;
-    const wins = c.maps.map(() => 0);
-    paths.forEach((el, i) => {
-      const k = conceptWinner(c, i);
-      if (k === null) { el.style.fill = LV[0].fill; el.style.fillOpacity = 1; return; }
-      wins[k]++; el.style.fill = VPAL[k % VPAL.length];
-      el.style.fillOpacity = [0, .38, .7, 1][c.maps[k].lv[i]];
-    });
-    $("legend").innerHTML = c.maps.map((m, k) => `<span><i class="dot" style="background:${VPAL[k % VPAL.length]}"></i>${m.word} <small>(${wins[k]})</small></span>`).join("") +
-      `<span>${sw(LV[0].fill)}brak</span>`;
+    $("mean").textContent = `Warianty: ‘${c.key}’`;
+    const used = c.maps.map(m => m.lv.filter(v => v > 0).length);
+    let mixed = 0;
+    paths.forEach((el, i) => { const [fill, op, n] = variantFill(c, i); el.style.fill = fill; el.style.fillOpacity = op; if (n > 1) mixed++; });
+    $("legend").innerHTML = c.maps.map((m, k) => `<span><i class="dot" style="background:${vcol(k)}"></i>${m.word} <small>(${used[k]})</small></span>`).join("") +
+      `<span>${sw(stripes([[0, 2], [1, 2]]))}kilka naraz <small>(${mixed})</small></span><span>${sw(LV[0].fill)}brak</span>`;
     $("stats").innerHTML = `<h2>Warianty</h2>` + c.maps.map((m, k) =>
-      `<div class="row click" data-key="m:${m.fbid}"><span><i class="dot" style="background:${VPAL[k % VPAL.length]}"></i>${m.word}</span><span class="lv">${m.lv.filter(v => v >= 2).length} pow. często+</span></div>`).join("");
-    $("src").innerHTML = `Kolor = słowo z najwyższym poziomem w powiecie; jaśniej = rzadziej. ${DATA.note}`;
+      `<div class="row click" data-key="m:${m.fbid}"><span><i class="dot" style="background:${vcol(k)}"></i>${m.word}</span><span class="lv">${used[k]} pow., w tym ${m.lv.filter(v => v >= 2).length} często</span></div>`).join("");
+    $("src").innerHTML = `Kolor = słowo używane w powiecie, jaśniej = rzadziej. Paski = kilka słów w tym samym powiecie; szerszy pasek = częściej używane. Liczby w legendzie: powiaty, w których słowo jest w użyciu. ${DATA.note}`;
   } else {
     const m = view.m;
     $("word").textContent = m.word;
     $("mean").textContent = `‘${m.meaning}’` + (m.kind !== "regionalizm" ? ` · ${m.kind}` : "");
     const c = conceptOf[m.fbid];
-    if (c) $("sibs").innerHTML = `Inne słowa na to samo: ` + c.maps.filter(x => x !== m).map(x => `<button class="chip" data-key="m:${x.fbid}">${x.word}</button>`).join("") +
-      `<button class="chip" data-key="c:${c.key}">porównaj na mapie →</button>`;
+    if (c) $("sibs").innerHTML = `<button class="chip var" data-key="c:${c.key}">WARIANTY</button>` +
+      c.maps.filter(x => x !== m).map(x => `<button class="chip" data-key="m:${x.fbid}">${x.word}</button>`).join("");
     paths.forEach((el, i) => { el.style.fill = LV[m.lv[i]].fill; el.style.fillOpacity = 1; });
     const cnt = [0, 0, 0, 0]; m.lv.forEach(v => cnt[v]++);
     $("legend").innerHTML = LV.slice().reverse().map(l => `<span>${sw(l.fill)}${l.name} <small>(${cnt[l.k]})</small></span>`).join("");
@@ -268,8 +292,8 @@ $("g-pw").addEventListener("mousemove", e => {
   const i = +e.target.dataset.i, p = DATA.powiaty[i];
   let body;
   if (view.type === "index") body = `${idx[i]} pkt regionalności`;
-  else if (view.type === "concept") body = view.c.maps.map((m, k) =>
-    `<div><i class="dot" style="background:${VPAL[k % VPAL.length]}"></i>${m.word}: ${LV[m.lv[i]].name}</div>`).join("");
+  else if (view.type === "concept") body = view.c.maps.map((m, k) => [m, k]).sort((a, b) => b[0].lv[i] - a[0].lv[i]).map(([m, k]) =>
+    `<div><i class="dot" style="background:${vcol(k)};opacity:${m.lv[i] ? 1 : .25}"></i>${m.word}: ${LV[m.lv[i]].name}</div>`).join("");
   else {
     const m = view.m, s = m.sh[i];
     body = `<span>${LV[m.lv[i]].name}</span><div class="bars">` +
@@ -294,9 +318,9 @@ $("q").oninput = e => renderList(e.target.value);
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { sel = null; renderSel(); }
   if ((e.key === "ArrowDown" || e.key === "ArrowUp") && document.activeElement !== $("q")) {
-    const keys = [...$("list").querySelectorAll("button")].map(b => b.dataset.key);
-    const i = keys.indexOf(view.key) + (e.key === "ArrowDown" ? 1 : -1);
-    if (i >= 0 && i < keys.length) { show(keys[i]); e.preventDefault(); }
+    const btns = [...$("list").querySelectorAll("button")], keys = btns.map(b => b.dataset.key);
+    const i = keys.indexOf(listKey(view)) + (e.key === "ArrowDown" ? 1 : -1);
+    if (i >= 0 && i < keys.length) { sel = null; show(keys[i]); btns[i].scrollIntoView({block: "nearest"}); e.preventDefault(); }
   }
 });
 renderList();
