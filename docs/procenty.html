@@ -120,7 +120,7 @@
     <h2>Obserwacje czytelników</h2>
     <p class="lead">Pojedyncze anegdoty z publicznych komentarzy, nie dane reprezentatywne ani miara zasięgu słowa.</p>
     <ul class="reader-observations"></ul>
-    <p><a class="post-source" target="_blank" rel="noopener noreferrer">Post autora i komentarze</a></p>
+    <p><a class="article-source" target="_blank" rel="noopener noreferrer">Przeczytaj opis autora</a><br><a class="post-source" target="_blank" rel="noopener noreferrer">Post autora i komentarze</a></p>
   </section>
 
   <section class="panel after" aria-labelledby="h-src">
@@ -195,6 +195,7 @@
       observations.appendChild(li);
     });
     $(".post-source").href = "https://www.facebook.com/photo/?fbid=" + context.post;
+    $(".article-source").href = parts[0] === "kulas" ? "https://swietlanmaps.pl/kulas-jako-pogrzebacz/" : "https://swietlanmaps.pl/wycierusy-jako-jeansy/";
     document.querySelector('input[name="word"][value="' + parts[0] + '"]').checked = true;
     document.querySelector('input[name="metric"][value="' + parts[1] + '"]').checked = true;
     var src = "img/" + m.fbid + ".webp";
