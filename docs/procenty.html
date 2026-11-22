@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Znam i używam: Kulas · Świetlan Maps</title>
+<meta name="description" content="Oryginalne mapy Świetlan Maps: udział odpowiedzi „znam” i „używam” w powiatach dla słów kulas i wycierusy.">
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --paper: #f4efe6; --paper2: #ebe4d6; --ink: #2b2622; --muted: #45503a; --line: #cfc5b4; --land: #b3d197; --accent: #2f5d2c;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--land); }
+  body { margin: 0; background: var(--land); color: var(--ink); min-height: 100vh;
+    font: 16px/1.5 "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
+  a { color: var(--ink); }
+  a:focus-visible, input:focus-visible + span { outline: 3px solid #1d4f8a; outline-offset: 2px; }
+  .page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 1500px; margin: 0 auto; padding: 14px 14px 24px; }
+  .panel { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .back { display: inline-block; margin-bottom: 8px; font-size: 14px; }
+  h1 { font-size: 24px; line-height: 1.2; margin: 0 0 8px; font-weight: 600; }
+  h2 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }
+  p { margin: 0 0 8px; }
+  .lead { color: var(--muted); font-size: 15px; }
+  fieldset { border: 0; margin: 0 0 10px; padding: 0; min-width: 0; }
+  legend { padding: 0; font-size: 12.5px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg label { cursor: pointer; flex: 1 1 130px; position: relative; }
+  .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .seg span { display: block; text-align: center; padding: 10px 14px; min-height: 44px; border: 1px solid var(--ink); border-radius: 4px;
+    background: #fbf8f2; font-size: 17px; font-weight: 600; }
+  .seg label:hover span { background: var(--paper2); }
+  .seg input:checked + span { background: var(--ink); color: var(--paper); }
+  figure { margin: 0; min-width: 0; }
+  .shot { background: #fbf8f2; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+  #map-img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; background: #e4dccd; border-radius: 3px; }
+  figcaption { margin-top: 8px; font-size: 14px; color: var(--ink); }
+  figcaption b { font-size: 16px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; font-size: 15px; }
+  .links a { padding: 4px 0; }
+  #img-link { display: block; cursor: zoom-in; }
+  .notice { border-left: 4px solid var(--accent); background: var(--paper2); padding: 10px 12px; border-radius: 0 4px 4px 0; font-size: 14.5px; }
+  .notice p:last-child { margin-bottom: 0; }
+  ul { margin: 0; padding-left: 20px; font-size: 14.5px; }
+  li { margin-bottom: 4px; }
+  footer { font-size: 13px; color: var(--muted); }
+  footer a { color: var(--ink); }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (min-width: 1000px) {
+    .page { grid-template-columns: 400px minmax(0, 1fr); gap: 20px; padding: 20px; align-items: start; }
+    .side { grid-column: 1; }
+    .stage { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 20px; }
+    .stage .shot { max-width: calc(100dvh - 120px); max-width: min(100%, calc(100vh - 120px)); }
+    .after { grid-column: 1; }
+    .foot { grid-column: 1 / -1; }
+  }
+  @media (max-width: 480px) {
+    .page { padding: 8px 8px 20px; gap: 10px; }
+    .panel { padding: 12px 12px; }
+    h1 { font-size: 20px; }
+    .shot { padding: 4px; }
+    .links { flex-direction: column; }
+    .links a { display: block; text-align: center; padding: 11px 12px; border: 1px solid var(--ink); border-radius: 4px; background: #fbf8f2; text-decoration: none; font-weight: 600; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="panel side" aria-labelledby="t">
+    <a class="back" href="index.html">← Wróć do przeglądarki map (indeks)</a>
+    <h1 id="t">Znam i używam: oryginalne mapy autora</h1>
+    <p class="lead">Dwa słowa, dwie miary. Wybierz słowo i to, co pokazuje mapa: odsetek odpowiedzi „znam” albo „używam” w powiatach.</p>
+
+    <form id="controls" onsubmit="return false">
+      <fieldset>
+        <legend>Słowo</legend>
+        <div class="seg" role="radiogroup" aria-label="Słowo">
+          <label><input type="radio" name="word" value="kulas" checked><span>kulas</span></label>
+          <label><input type="radio" name="word" value="wycierusy"><span>wycierusy</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Co pokazuje mapa</legend>
+        <div class="seg" role="radiogroup" aria-label="Miara">
+          <label><input type="radio" name="metric" value="znam" checked><span>Znam</span></label>
+          <label><input type="radio" name="metric" value="uzywam"><span>Używam</span></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="notice" role="note">
+      <p><b>To wyświetlenie oryginalnych obrazów autora, nie funkcja klikania w powiaty.</b> Nie jest to mapa klikalna: wartości dla powiatów nie zostały wyodrębnione cyfrowo i nie podajemy ich liczbowo. Kolor odczytujesz z legendy na obrazie.</p>
+    </div>
+  </section>
+
+  <section class="stage" aria-labelledby="cap-title">
+    <figure>
+      <div class="shot" id="shot">
+        <a id="img-link" href="img/1668950077927839.webp" target="_blank" rel="noopener" aria-label="Otwórz mapę w pełnej wielkości (nowa karta)"><img id="map-img" src="img/1668950077927839.webp" width="2048" height="2048" decoding="async"
+             alt="Mapa powiatów Polski: udział odpowiedzi „znam” dla słowa kulas"></a>
+      </div>
+      <figcaption id="caption">
+        <b id="cap-title"></b><br>
+        <span id="metric-label"></span><br>
+        <span id="survey-line"></span>
+        <div class="links">
+          <a id="orig-link" href="https://www.facebook.com/photo/?fbid=1668950077927839" target="_blank" rel="noopener noreferrer">Zobacz oryginał na Facebooku</a>
+          <a id="full-link" href="img/1668950077927839.webp" target="_blank" rel="noopener">Powiększ mapę (pełna wielkość, legenda i drobny druk)</a>
+        </div>
+      </figcaption>
+    </figure>
+    <p id="status" class="vh" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel after" id="post-context" aria-labelledby="context-heading">
+    <h2 id="context-heading" style="margin-top:0">Kontekst z posta autora</h2>
+    <p class="author-summary"></p>
+    <p class="author-caveat"></p>
+    <h2>Obserwacje czytelników</h2>
+    <p class="lead">Pojedyncze anegdoty z publicznych komentarzy, nie dane reprezentatywne ani miara zasięgu słowa.</p>
+    <ul class="reader-observations"></ul>
+    <p><a class="post-source" target="_blank" rel="noopener noreferrer">Post autora i komentarze</a></p>
+  </section>
+
+  <section class="panel after" aria-labelledby="h-src">
+    <h2 id="h-src" style="margin-top:0">Źródło i ankieta</h2>
+    <ul>
+      <li>Autor map: <a href="https://www.facebook.com/swietlanmaps" target="_blank" rel="noopener noreferrer">Świetlan Maps</a> (Michał Świetliński). Wyświetlamy oryginalne obrazy autora, bez przeróbek; ich dalsze użycie wymaga zgody autora.</li>
+      <li>Ankieta została przeprowadzona na grupie. Uczestnicy zgłaszają się w niej samodzielnie, więc wyniki dotyczą osób, które odpowiedziały, a nie reprezentatywnej próby mieszkańców.</li>
+      <li>Nagłówek ankiety (dla wybranego słowa) widać pod mapą: liczba osób i okres zbierania odpowiedzi.</li>
+    </ul>
+    <h2>Jak czytać</h2>
+    <ul>
+      <li>Legenda na obrazie: oznaczenia co 10 punktów procentowych, od 0% do 90%.</li>
+      <li>Różnica między mapą „znam” a „używam” nie dowodzi zaniku słowa. To dwie osobne odpowiedzi w tej samej ankiecie.</li>
+      <li>Wartości są wyłącznie takie, jakie autor pokazał na obrazie; niczego nie przeliczamy.</li>
+    </ul>
+  </section>
+
+  <footer class="panel foot">
+    <a href="index.html">Przeglądarka map regionalizmów</a> ·
+    <a href="https://forms.gle/vsnNwas5R44hrZzp6" target="_blank" rel="noopener noreferrer">Ankieta nr 35</a> ·
+    <a href="https://buycoffee.to/swietlanmaps" target="_blank" rel="noopener noreferrer">Wesprzyj autora</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NB = "\u00a0";
+  // Verified originals (data/source/pct_page_probe/provenance.json); nothing here is computed from the images.
+  var MAPS = {
+    "kulas-znam": { fbid: "1668950077927839", title: "Kulas", meaning: "„pogrzebacz”", metric: "Znam",
+      n: "29" + NB + "649", dates: "9–31 sierpnia 2026" },
+    "kulas-uzywam": { fbid: "1668949914594522", title: "Kulas", meaning: "„pogrzebacz”", metric: "Używam",
+      n: "29" + NB + "649", dates: "9–31 sierpnia 2026" },
+    "wycierusy-znam": { fbid: "1667992061356974", title: "Wycierusy", meaning: "„jeansy”", metric: "Znam",
+      n: "30" + NB + "670", dates: "18 stycznia – 10 lutego 2026" },
+    "wycierusy-uzywam": { fbid: "1667991838023663", title: "Wycierusy", meaning: "„jeansy”", metric: "Używam",
+      n: "30" + NB + "670", dates: "18 stycznia – 10 lutego 2026" }
+  };
+  var CONTEXT = {
+    kulas: {
+      summary: "Według autora kulas w znaczeniu pogrzebacz to regionalizm północnomazowiecki, najsilniejszy w północno-wschodniej części historycznego Mazowsza, w pasie od Przasnysza po Grajewo; nawet tam jest co najwyżej częsty, a nie powszechny, a dalej na zachód, do Rypina, występuje rzadko. W miastach mapa użycia ma wyraźne luki (wzór przypominający ser szwajcarski), których nie widać na mapie znajomości słowa; autor tłumaczy to mniejszym zapotrzebowaniem na pogrzebacze w miastach. WSJP nie notuje kulasa w tym znaczeniu.",
+      caveat: "Różnica między mapą użycia a mapą znajomości to porównanie dwóch map z ankiety autora i nie jest dowodem zmian w czasie. Wyjaśnienie dotyczące miast jest hipotezą autora.",
+      observations: ["Jedna osoba w komentarzu podaje, że w województwie podlaskim kulas oznacza pogrzebacz.", "Jedna osoba pisze, że w województwie podkarpackim kulasy oznaczają nogi, natomiast pogrzebacz ma tam inną nazwę.", "Jedna osoba pisze, że w województwie lubelskim używano formy kulbas (komentarz w wątku o pogrzebaczu)."],
+      post: "1668949464594567"
+    },
+    wycierusy: {
+      summary: "Według autora wycierusy, obok wariantu wycieruchy, to regionalne określenie jeansów (część zgłaszających miała na myśli jeansy znoszone, ale policzono je jako zwykłe jeansy). Mapa pokazuje słowo głównie w Wielkopolsce (okolice Inowrocławia, Kępna, Wągrowca i Nakła), rzadziej w pozostałej części tej krainy, z wyjątkiem Poznania i powiatu poznańskiego, oraz na wschodnim pograniczu: w zachodniej części Łódzkiego i większości Kujawsko-pomorskiego. Najwyższy poziom to co najwyżej częste. WSJP podaje słowo bez wskazania regionalności i, według autora, łączy je z czasownikiem trzeć.",
+      caveat: "Opis dotyczy zasięgu na mapie autora w momencie ankiety; nie mówi nic o zmianach w czasie.",
+      observations: ["Jedna osoba w komentarzu zgłasza występowanie formy wycierusy w województwie kujawsko-pomorskim.", "Jedna osoba zgłasza, że w województwie mazowieckim znana jest forma wycieruchy.", "Jedna osoba zawęża znaczenie do jeansów, które są z fabryki przetarte i sprawiają wrażenie zużytych, a nie do wszystkich jeansów."],
+      post: "1667991471357033"
+    }
+  };
+  var DEFAULT = "kulas-znam";
+  var $ = function (s) { return document.querySelector(s); };
+  var img = $("#map-img");
+
+  function checked(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : null; }
+
+  function show(key, updateHash) {
+    var m = MAPS[key];
+    if (!m) { key = DEFAULT; m = MAPS[key]; }
+    var parts = key.split("-");
+    var context = CONTEXT[parts[0]];
+    $(".author-summary").textContent = context.summary;
+    $(".author-caveat").textContent = context.caveat;
+    var observations = $(".reader-observations");
+    observations.replaceChildren();
+    context.observations.forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      observations.appendChild(li);
+    });
+    $(".post-source").href = "https://www.facebook.com/photo/?fbid=" + context.post;
+    document.querySelector('input[name="word"][value="' + parts[0] + '"]').checked = true;
+    document.querySelector('input[name="metric"][value="' + parts[1] + '"]').checked = true;
+    var src = "img/" + m.fbid + ".webp";
+    var altText = "Mapa powiatów Polski: udział odpowiedzi „" + m.metric.toLowerCase() + "” dla słowa " + m.title.toLowerCase() +
+      " (jako regionalizm o znaczeniu " + m.meaning + "). Oryginalna grafika Świetlan Maps z legendą co 10 punktów procentowych.";
+    img.setAttribute("alt", altText);
+    if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+    $("#cap-title").textContent = m.title.toUpperCase() + " jako regionalizm o znaczeniu " + m.meaning;
+    $("#metric-label").textContent = m.metric + ": udział odpowiedzi „" + m.metric.toLowerCase() + "” w powiatach";
+    $("#survey-line").textContent = "Ankieta na grupie: " + m.n + " osób, " + m.dates + ". Uczestnicy zgłaszali się samodzielnie.";
+    var orig = $("#orig-link");
+    orig.setAttribute("href", "https://www.facebook.com/photo/?fbid=" + m.fbid);
+    $("#full-link").setAttribute("href", src);
+    $("#img-link").setAttribute("href", src);
+    document.title = "Znam i używam: " + m.title + " (" + m.metric.toLowerCase() + ") · Świetlan Maps";
+    $("#status").textContent = "Pokazano mapę: " + m.title + ", " + m.metric.toLowerCase() + ".";
+    if (updateHash !== false && location.hash !== "#" + key) history.replaceState(null, "", "#" + key);
+  }
+
+  function fromControls() { show(checked("word") + "-" + checked("metric")); }
+  document.querySelectorAll("#controls input").forEach(function (i) { i.addEventListener("change", fromControls); });
+  window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
+})();
+</script>
+<noscript><p style="max-width:40em;margin:8px auto;padding:0 14px">Ta strona wymaga JavaScriptu do przełączania map. Pokazana jest domyślna mapa: kulas, znam.</p></noscript>
+</body>
+</html>
