@@ -3,8 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Świetlan Maps · przeglądarka map regionalizmów</title>
-<meta name="description" content="Interaktywna przeglądarka map regionalizmów Świetlan Maps: słowa, powiaty, warianty.">
+<title>Mapa regionalizmów Polski · Świetlan Maps</title>
+<meta name="description" content="Odkrywaj regionalne słowa na mapie Polski, porównuj powiaty i sprawdź się w quizach. Interaktywna przeglądarka map Świetlan Maps.">
+<link rel="canonical" href="https://itstomekk.github.io/swietlanmaps/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:site_name" content="Świetlan Maps">
+<meta property="og:title" content="Mapa regionalizmów Polski · Świetlan Maps">
+<meta property="og:description" content="Odkrywaj regionalne słowa na mapie Polski, porównuj powiaty i sprawdź się w quizach.">
+<meta property="og:url" content="https://itstomekk.github.io/swietlanmaps/">
+<meta property="og:image" content="https://itstomekk.github.io/swietlanmaps/og-swietlan.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ilustracja mapy Polski i napis Świetlan Maps: odkryj, jak mówi się w różnych stronach Polski.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mapa regionalizmów Polski · Świetlan Maps">
+<meta name="twitter:description" content="Odkrywaj regionalne słowa na mapie Polski, porównuj powiaty i sprawdź się w quizach.">
+<meta name="twitter:image" content="https://itstomekk.github.io/swietlanmaps/og-swietlan.jpg">
 <link rel="icon" href="data:,">
 <style>
   :root {
@@ -125,6 +139,7 @@
 </style>
 </head>
 <body>
+<noscript><style>html,body{overflow:auto;height:auto}.app{display:none}noscript{display:block;padding:24px}</style><h1>Mapa regionalizmów Polski · Świetlan Maps</h1><p>Przeglądaj regionalne słowa i mapy powiatów na podstawie map i ankiet Michała Świetlińskiego. Mapa interaktywna wymaga JavaScript.</p><a href="https://swietlanmaps.pl/">Poznaj oryginalne mapy Świetlan Maps</a></noscript>
 <div class="app">
   <aside>
     <h1>Świetlan Maps</h1>
@@ -213,7 +228,7 @@ DATA.woj.forEach(w => {
 });
 DATA.neighbors.forEach(n => { const el = document.createElementNS(svgNS, "path");
   el.setAttribute("d", n.d); el.setAttribute("class", "neighbor"); $("g-nb").appendChild(el); });
-const pad = 180;
+const pad = 20;
 $("map").setAttribute("viewBox", `${minX - pad} ${minY - pad} ${maxX - minX + 2 * pad} ${maxY - minY + 2 * pad}`);
 
 // ---- statistics, computed in the browser from the levels ----
@@ -418,8 +433,8 @@ function variantFill(c, i) {
   return [dots(parts), 1, parts.length];
 }
 
-// list: feature entries (quiz, stats, index, folded WARIANTY), then single words A-Z (grouped words are listed only under WARIANTY)
-let varOpen = false;
+// Feature entries and individually selectable words, both in collapsible groups.
+let varOpen = false, wordsOpen = false;
 const ICON = {
   quiz: `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><path d="M10 8.3a2.2 2.2 0 1 1 3 2c-.7.3-1 .8-1 1.5"/><path d="M12 14.6h.01"/></svg>`,
   stats: `<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>`,
@@ -458,7 +473,15 @@ function renderList(filter = "") {
     if (open) { const s = document.createElement("div"); s.className = "sub"; nav.appendChild(s);
       cs.forEach(c => add("c:" + c.key, `‘${c.key}’`, c.maps.map(m => m.word).join(", "), s)); } }
   const ms = DATA.maps.filter(m => hit(m.word + " " + m.meaning)).sort((a, b) => coll.compare(a.word, b.word));
-  if (ms.length) { h(`Słowa i wyrażenia (${ms.length})`); ms.forEach(m => add("m:" + m.fbid, m.word, m.meaning)); }
+  if (ms.length) {
+    const open = wordsOpen || !!f, cur = view && listKey(view).startsWith("m:");
+    const t = btn(`Słowa i wyrażenia (${ms.length})`, "alfabetyczny spis słów", "feat fold" + (open ? " open" : "") + (cur && !open ? " on" : ""), "index");
+    t.style.setProperty("--c", "#8a6d1f"); t.setAttribute("aria-expanded", open);
+    t.onclick = () => { wordsOpen = !open; renderList($("q").value); };
+    nav.appendChild(t);
+    if (open) { const s = document.createElement("div"); s.className = "sub"; nav.appendChild(s);
+      ms.forEach(m => add("m:" + m.fbid, m.word, m.meaning, s)); }
+  }
   L.scrollTop = st[0]; L.scrollLeft = st[1];
 }
 // Single words remain individually selectable, including those in a variant group.

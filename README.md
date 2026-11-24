@@ -1,37 +1,39 @@
-# 🗺️ Świetlan Maps · regionalisms browser
+# 🗺️ Świetlan Maps · Explore the words of Poland
 
-**[Open the browser →](https://itstomekk.github.io/swietlanmaps/)**
+**Different places, different words.** Explore Poland's regional vocabulary through the maps and surveys of [Michał Świetliński / Świetlan Maps](https://swietlanmaps.pl/).
 
-> 🇵🇱 Interaktywna przeglądarka map regionalizmów [Świetlan Maps](https://www.facebook.com/swietlanmaps). Wybierz słowo, kliknij powiat i zobacz, jak się tam mówi.
+**[🧭 Open the interactive map](https://itstomekk.github.io/swietlanmaps/)** · [🎲 Guess a meaning](https://itstomekk.github.io/swietlanmaps/#game) · [📊 Explore county groups](https://itstomekk.github.io/swietlanmaps/kohorty.html) · [☕ Support the author](https://buycoffee.to/swietlanmaps)
 
-![The browser comparing six words for stealing fruit from someone's orchard](.github/readme/hero.png)
+[![The interactive regionalism map showing a word and its related expressions](.github/readme/hero-new.png)](https://itstomekk.github.io/swietlanmaps/)
 
-## ✨ What it does
+## ✨ Start exploring
 
-Michał Świetliński runs [Świetlan Maps](https://www.facebook.com/swietlanmaps): large online surveys about regional Polish words, published as maps. This site turns those maps into one searchable, clickable browser.
+- **Find a word.** Search for a regional word or its meaning, then open its map.
+- **Explore a place.** Click a county, or choose it from the list on a phone, to see the words recorded there.
+- **Compare expressions.** Open *Warianty* to see different words for the same idea together or on separate maps.
+- **Play.** In *Skąd jestem?*, answer questions about the words you use. In *Zgadnij znaczenie*, try to guess what a regional expression means.
+- **Go deeper.** Browse the [regionality index](https://itstomekk.github.io/swietlanmaps/#index), [county groups](https://itstomekk.github.io/swietlanmaps/kohorty.html) and [original “znam / używam” maps](https://itstomekk.github.io/swietlanmaps/procenty.html).
 
-- 🔎 **Every word in one list.** Search by the word or by its meaning.
-- 🧭 **County level.** Each map is read for all 380 powiaty (counties and cities with county rights), on the same scale as the surveys: *powszechne* (common), *częste* (frequent), *rzadkie* (rare).
-- 🖱️ **Click a county** to see every regional word used there.
-- 🎨 **One meaning, many words.** When several words mean the same thing, one map shows which word wins where.
-- 📊 **Regionality index.** All regional words added up per county.
-- 🖼️ **Original on top.** Tick *oryginał* to lay the original graphic over the map and compare.
-- 🔗 **Shareable links.** Every word has its own address, for example [https://itstomekk.github.io/swietlanmaps/#index](https://itstomekk.github.io/swietlanmaps/#index).
+| 🎲 A word game | 📱 On your phone |
+| --- | --- |
+| ![The meaning-guessing game](.github/readme/game-new.png) | ![Regionality map on a phone](.github/readme/mobile-new.png) |
 
-| One word | Regionality index | Phone |
-|---|---|---|
-| ![Single word map](.github/readme/word.png) | ![Regionality index](.github/readme/index.png) | ![Mobile layout](.github/readme/mobile.png) |
+## 🧭 A note about the maps
 
-## ⚠️ Good to know
+County levels are **automatically estimated from published graphics**, not taken from raw survey responses. Some readings and transcribed titles may be inaccurate, especially near borders or in small counties. Use **oryginał** on a word map to compare it with the source.
 
-- The county levels were **read automatically from the published graphics**, not from the raw survey data. They are close to the originals but can differ at the edges of a region, especially for the hatched *rare* areas. The original graphic is always one click away.
-- The surveys are open online surveys, so they show where people who answered use a word, not a representative sample.
-- More maps are being added. Older map styles (percent maps, multi-panel maps) will come next.
+The surveys are open and self-selected, not representative samples. The quiz is for fun, and county groupings are exploratory rather than official dialect boundaries.
 
 ## 🙏 Credits
 
-- **Maps, surveys and results:** Michał Świetliński, [Świetlan Maps](https://www.facebook.com/swietlanmaps). All map graphics and survey results belong to him.
-- **County borders:** [ppatrzyk/polska-geojson](https://github.com/ppatrzyk/polska-geojson).
-- **Browser:** built by [Tomek Kołodziejczuk](https://github.com/itstomekk) to help Świetlan Maps.
+- **Maps, surveys and results:** Michał Świetliński, [Świetlan Maps](https://swietlanmaps.pl/). The map graphics and survey results belong to their author.
+- **County and voivodeship boundaries:** [ppatrzyk/polska-geojson](https://github.com/ppatrzyk/polska-geojson).
+- **Surrounding country outlines:** [Natural Earth](https://www.naturalearthdata.com/).
+- **Interactive browser:** [Tomek Kołodziejczuk](https://github.com/itstomekk), built to help Świetlan Maps.
+- **Social preview illustration:** generated with GPT Image and combined with typeset text; the illustrated map is decorative, not geographic data.
 
-Technical notes: [DEVELOPMENT.md](DEVELOPMENT.md) · How to refresh: [UPDATING.md](UPDATING.md)
+## 💬 Help improve it
+
+Found a wrong word, a map reading that needs attention, or a problem on your device? [Open an issue](https://github.com/itstomekk/swietlanmaps/issues) and tell us what you saw. For maps and surveys, visit [Świetlan Maps](https://www.facebook.com/swietlanmaps).
+
+[Development notes](DEVELOPMENT.md) · [Updating the site](UPDATING.md)
