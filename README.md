@@ -1,4 +1,4 @@
-# 🗺️ Świetlan Maps · Explore the words of Poland
+# 🗺️ Świetlan Maps Interactive
 
 **Different places, different words.** Explore Poland's regional vocabulary through the maps and surveys of [Michał Świetliński / Świetlan Maps](https://swietlanmaps.pl/).
 
@@ -30,7 +30,7 @@ The surveys are open and self-selected, not representative samples. The quiz is 
 - **County and voivodeship boundaries:** [ppatrzyk/polska-geojson](https://github.com/ppatrzyk/polska-geojson).
 - **Surrounding country outlines:** [Natural Earth](https://www.naturalearthdata.com/).
 - **Interactive browser:** [Tomek Kołodziejczuk](https://github.com/itstomekk), built to help Świetlan Maps.
-- **Social preview illustration:** generated with GPT Image and combined with typeset text; the illustrated map is decorative, not geographic data.
+- **Social preview image:** the map uses the project's county geometry, with illustrative colours inspired by the “faworki” word group and the original Świetlan Maps palette. It is decorative, not survey data.
 
 ## 💬 Help improve it
 
