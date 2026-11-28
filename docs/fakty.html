@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Wybrane fakty z opisów publicznych postów Świetlan Maps: znajomość i używalność regionalnych słów według ankiet autora, z linkiem do każdego posta.">
+<link rel="canonical" href="https://itstomekk.github.io/swietlanmaps/fakty.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:site_name" content="Świetlan Maps Interactive">
+<meta property="og:title" content="Fakty z ankiet · Świetlan Maps Interactive">
+<meta property="og:description" content="Znajomość i używalność regionalnych słów według ankiet Świetlan Maps, z linkami do postów autora.">
+<meta property="og:url" content="https://itstomekk.github.io/swietlanmaps/fakty.html">
+<meta property="og:image" content="https://itstomekk.github.io/swietlanmaps/og-swietlan.jpg?v=20261127">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ilustracja mapy powiatów Polski i napis Świetlan Maps Interactive.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fakty z ankiet · Świetlan Maps Interactive">
+<meta name="twitter:description" content="Znajomość i używalność regionalnych słów według ankiet Świetlan Maps, z linkami do postów autora.">
+<meta name="twitter:image" content="https://itstomekk.github.io/swietlanmaps/og-swietlan.jpg?v=20261127">
+<title>Fakty z ankiet · Świetlan Maps Interactive</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1d1d1b;--mut:#5a5750;--card:#fff;--line:#d9d4c8;--acc:#b3261e;--acc2:#2e6b3a;--focus:#0b57d0;--warn:#fff4d6;--warnl:#e2c46a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:1rem/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:72rem;margin:0 auto;padding:1rem}
+a{color:var(--acc)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);line-height:1.15;margin:.2rem 0 .4rem}
+.lead{color:var(--mut);margin:0 0 1rem;max-width:60ch}
+.badge{display:inline-block;background:var(--acc);color:#fff;font-weight:700;font-size:.8rem;padding:.15rem .6rem;border-radius:99px;letter-spacing:.03em}
+.notice{background:var(--warn);border:1px solid var(--warnl);border-radius:.6rem;padding:.8rem 1rem;margin:1rem 0}
+.notice h2{font-size:1rem;margin:0 0 .3rem}.notice ul{margin:.2rem 0 0;padding-left:1.2rem}.notice li{margin:.15rem 0}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.75rem;align-items:end;margin:1rem 0}
+.controls label,.controls legend{display:block;font-weight:600;font-size:.9rem;margin-bottom:.2rem}
+.controls input,.controls select,.controls button{width:100%;min-height:44px;font:inherit;padding:.4rem .6rem;border:1px solid var(--line);border-radius:.5rem;background:var(--card);color:var(--fg)}
+.controls button{cursor:pointer;font-weight:600}
+fieldset{border:0;margin:0;padding:0;grid-column:1/-1}
+.pills{display:flex;flex-wrap:wrap;gap:.5rem}
+.pills label{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:0 .8rem;border:1px solid var(--line);border-radius:99px;background:var(--card);font-weight:500;margin:0;cursor:pointer}
+.pills input{width:1.1rem;min-height:0;height:1.1rem;margin:0}
+#count{font-weight:600;margin:.5rem 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,23rem),1fr));gap:1rem;list-style:none;padding:0;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:.8rem;padding:1rem;display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.card[hidden]{display:none}
+.card h2{margin:0;font-size:1.35rem;overflow-wrap:anywhere}
+.meta{margin:0;color:var(--mut);font-size:.85rem}
+.claim{margin:0;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;list-style:none;padding:0;margin:0}
+.chips li{font-size:.8rem;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:.05rem .6rem}
+.figures{list-style:none;padding:0;margin:.2rem 0;display:grid;gap:.5rem}
+.figures li{display:grid;grid-template-columns:1fr auto;gap:.15rem .6rem;align-items:center}
+.flabel{grid-column:1/-1;font-size:.85rem;color:var(--mut);overflow-wrap:anywhere}
+.bar{display:block;height:.8rem;background:var(--bg);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.fill{display:block;height:100%;background:var(--acc2)}
+.bar.min .fill{background:repeating-linear-gradient(90deg,var(--acc2) 0 .6rem,transparent .6rem .8rem)}
+.bar.max .fill{background:linear-gradient(90deg,var(--acc2) 70%,transparent)}
+.fval{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}.n{font-weight:400;color:var(--mut);font-size:.8rem}
+.src{margin:auto 0 0;padding-top:.4rem;font-size:.9rem}.src a{display:inline-block;min-height:44px;line-height:44px;overflow-wrap:anywhere}
+.empty{padding:1.5rem;border:1px dashed var(--line);border-radius:.8rem;text-align:center}
+footer{margin:2rem 0 1rem;color:var(--mut);font-size:.9rem}footer h2{font-size:1rem;color:var(--fg)}
+@media (max-width:420px){.wrap{padding:.75rem}.card{padding:.85rem}}
+@media (prefers-reduced-motion:no-preference){.card{transition:box-shadow .15s}.card:hover{box-shadow:0 2px 10px rgba(0,0,0,.12)}}
+
+:root{--bg:#f4efe6;--fg:#2b2622;--mut:#5c5248;--card:#fffdf8;--line:#cfc5b4;--acc:#294f27;--acc2:#3f7f3a;--focus:#1d4f8a;--warn:#ebe4d6;--warnl:#cfc5b4}
+body{background:#b3d197}.wrap{background:var(--bg);border:1px solid var(--line);border-radius:6px;margin:20px auto}
+h1,.card h2{font-family:Georgia,serif}.badge{background:#b5372b;color:#fff}
+nav a{display:inline-block;min-height:44px;line-height:44px}
+@media (max-width:800px){.wrap{margin:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<nav><a href="./">← Wróć do mapy regionalizmów</a> · <a href="o-projekcie.html">O projekcie</a></nav>
+<h1>Fakty z ankiet Świetlan Maps</h1>
+<p class="lead">9 faktów z opisów 9 różnych postów Świetlan Maps. Liczby i wnioski pochodzą od autora; ten przegląd ich nie zastępuje ani nie sprawdza niezależnie.</p>
+</header>
+
+<section class="notice" aria-labelledby="cav">
+<h2 id="cav">Jak czytać te dane</h2>
+<ul>
+<li><strong>Ankieta jest samoselekcyjna.</strong> Odpowiadają osoby, które trafiły na ankietę i chciały ją wypełnić. To nie jest reprezentatywna próba mieszkańców Polski, więc odsetki opisują uczestników ankiety, nie „Polaków”.</li>
+<li>Znajomość i używalność to deklaracje respondentów. Małe próby (np. kilkadziesiąt osób w powiecie) dają niepewne odsetki.</li>
+<li>Wartości są przepisane z opisów postów w brzmieniu podanym przez autora („ok.”, „ponad”, „niecałe” zaznaczono przy liczbie). Nie wnioskujemy z nich o zaniku ani rozwoju słów.</li>
+<li>Do każdego faktu dołączono link do dokładnego posta; tam jest pełny kontekst autora.</li>
+</ul>
+</section>
+
+<form class="controls" role="search" aria-label="Szukaj i filtruj fakty" onsubmit="return false">
+<div><label for="q">Szukaj (słowo, miejsce, liczba)</label><input id="q" type="search" autocomplete="off" placeholder="np. rajtki, Kraków, 78"></div>
+<div><label for="year">Rok posta</label><select id="year"><option value="">wszystkie</option><option value="2026">2026</option><option value="2025">2025</option></select></div>
+<div><label for="sort">Kolejność</label><select id="sort"><option value="new">od najnowszych</option><option value="old">od najstarszych</option><option value="word">alfabetycznie</option></select></div>
+<div><button type="button" id="reset">Wyczyść filtry</button></div>
+<fieldset><legend>Pokaż tylko fakty zawierające</legend><div class="pills"><label><input type=checkbox name=metric value="znajomość"> znajomość</label><label><input type=checkbox name=metric value="używalność"> używalność</label><label><input type=checkbox name=metric value="miejsca"> porównanie miejsc</label><label><input type=checkbox name=metric value="próba"> podana liczebność próby</label></div></fieldset>
+</form>
+
+<p id="count" role="status" aria-live="polite"></p>
+<p id="empty" class="empty" hidden>Brak faktów dla tych filtrów. Wyczyść filtry lub zmień frazę.</p>
+<div id="list" class="grid">
+<article class=card id="bambosze-kapcie" data-search="bambosze autor podaje, ze sposrod 22 652 uczestnikow ankiety 92,19% kojarzy forme bambosze jako obuwie domowe, a 22,33% wskazalo uzywalnosc. autor przypuszcza, ze znajomosc moze dotyczyc futrzastego rodzaju obuwia, nie kazdego kapcia. znajomosc uzywalnosc" data-metrics="znajomość używalność próba" data-year="2026" data-date="2026-10-08" data-word="bambosze">
+  <header><h2>bambosze</h2><p class=meta><time datetime="2026-10-08">8 października 2026</time> · opis posta autora</p></header>
+  <p class=claim>Autor podaje, że spośród 22 652 uczestników ankiety 92,19% kojarzy formę bambosze jako obuwie domowe, a 22,33% wskazało używalność. Autor przypuszcza, że znajomość może dotyczyć futrzastego rodzaju obuwia, nie każdego kapcia.</p>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>znajomość</span><span class="bar" role=img aria-label="znajomość: 92,19%"><span class=fill style="width:92.19%"></span></span><span class=fval>92,19% <span class=n>n = 22 652</span></span></li><li><span class=flabel>używalność</span><span class="bar" role=img aria-label="używalność: 22,33%"><span class=fill style="width:22.33%"></span></span><span class=fval>22,33% <span class=n>n = 22 652</span></span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1629696198519894&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 8 października 2026 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="zabuchtowane-chojnice" data-search="zabuchtowane wedlug autora mapa wyrazu zabuchtowane jest oparta glownie na chojnicach i powiecie chojnickim: tylko tam udzial odpowiedzi „uzywam z domu” siegnal ponad 30%. okolice koscierzyny i starogardu gdanskiego daly po ok. 22% uzywalnosci. chojnice i powiat chojnicki okolice koscierzyny i starogardu gdanskiego chojnice i pow. chojnicki – uzywam z domu okolice koscierzyny i starogardu gd. – uzywalnosc" data-metrics="używalność miejsca" data-year="2026" data-date="2026-10-04" data-word="zabuchtowane">
+  <header><h2>zabuchtowane</h2><p class=meta><time datetime="2026-10-04">4 października 2026</time> · opis posta autora</p></header>
+  <p class=claim>Według autora mapa wyrazu zabuchtowane jest oparta głównie na Chojnicach i powiecie chojnickim: tylko tam udział odpowiedzi „używam z domu” sięgnął ponad 30%. Okolice Kościerzyny i Starogardu Gdańskiego dały po ok. 22% używalności.</p>
+  <ul class=chips aria-label="Miejsca wymienione w poście"><li>Chojnice i powiat chojnicki</li><li>okolice Kościerzyny i Starogardu Gdańskiego</li></ul>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>Chojnice i pow. chojnicki – używam z domu</span><span class="bar min" role=img aria-label="Chojnice i pow. chojnicki – używam z domu: ponad 30%"><span class=fill style="width:30%"></span></span><span class=fval>ponad 30%</span></li><li><span class=flabel>okolice Kościerzyny i Starogardu Gd. – używalność</span><span class="bar" role=img aria-label="okolice Kościerzyny i Starogardu Gd. – używalność: ok. 22%"><span class=fill style="width:22%"></span></span><span class=fval>ok. 22%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1626127488876765&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 4 października 2026 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="byc-wyjechanym" data-search="jest wyjechany wedlug autora forme „jest wyjechany” w znaczeniu „ktos, kto wyjechal” kojarzy 20% respondentow, a uzywalnosc jest czterokrotnie nizsza niz znajomosc. znajomosc" data-metrics="znajomość używalność" data-year="2026" data-date="2026-08-09" data-word="jest wyjechany">
+  <header><h2>jest wyjechany</h2><p class=meta><time datetime="2026-08-09">9 sierpnia 2026</time> · opis posta autora</p></header>
+  <p class=claim>Według autora formę „jest wyjechany” w znaczeniu „ktoś, kto wyjechał” kojarzy 20% respondentów, a używalność jest czterokrotnie niższa niż znajomość.</p>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>znajomość</span><span class="bar" role=img aria-label="znajomość: 20%"><span class=fill style="width:20%"></span></span><span class=fval>20%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1577615997061248&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 9 sierpnia 2026 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="na-mieszkaniu" data-search="na mieszkaniu wedlug autora forme „na mieszkaniu” zna prawie 60% respondentow, a uzywa jej 23%; poza mazowszem i podlasiem odsetek uzytkownikow jest niezerowy w niemal kazdym powiecie. znajomosc uzywalnosc" data-metrics="znajomość używalność miejsca" data-year="2026" data-date="2026-01-25" data-word="na mieszkaniu">
+  <header><h2>na mieszkaniu</h2><p class=meta><time datetime="2026-01-25">25 stycznia 2026</time> · opis posta autora</p></header>
+  <p class=claim>Według autora formę „na mieszkaniu” zna prawie 60% respondentów, a używa jej 23%; poza Mazowszem i Podlasiem odsetek użytkowników jest niezerowy w niemal każdym powiecie.</p>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>znajomość</span><span class="bar max" role=img aria-label="znajomość: prawie 60%"><span class=fill style="width:60%"></span></span><span class=fval>prawie 60%</span></li><li><span class=flabel>używalność</span><span class="bar" role=img aria-label="używalność: 23%"><span class=fill style="width:23%"></span></span><span class=fval>23%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1417721853050664&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 25 stycznia 2026 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="torta-dopelniacz" data-search="torta (dopelniacz od tort) wedlug autora forme torta (dopelniacz od tort) zna 80% respondentow, a ponad 50% deklaruje jej naturalne uzywanie; opieraja sie jej m.in. mazowsze (zwlaszcza warszawa) i podlasie. znajomosc uzywalnosc" data-metrics="znajomość używalność miejsca" data-year="2026" data-date="2026-01-03" data-word="torta (dopelniacz od tort)">
+  <header><h2>torta (dopełniacz od tort)</h2><p class=meta><time datetime="2026-01-03">3 stycznia 2026</time> · opis posta autora</p></header>
+  <p class=claim>Według autora formę torta (dopełniacz od tort) zna 80% respondentów, a ponad 50% deklaruje jej naturalne używanie; opierają się jej m.in. Mazowsze (zwłaszcza Warszawa) i Podlasie.</p>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>znajomość</span><span class="bar" role=img aria-label="znajomość: 80%"><span class=fill style="width:80%"></span></span><span class=fval>80%</span></li><li><span class=flabel>używalność</span><span class="bar min" role=img aria-label="używalność: ponad 50%"><span class=fill style="width:50%"></span></span><span class=fval>ponad 50%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1401419691347547&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 3 stycznia 2026 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="ciucmok-poludnie" data-search="ciucmok wedlug autora uzywalnosc ciucmoka w ankiecie wyniosla okolo 30%, a znajomosc byla bliska 70%; uzywanie wyroznia poludnie kraju. autor zastrzega, ze wynik znajomosci moze zawierac tez znajomosc formy ciucma. poludnie polski uzywalnosc znajomosc" data-metrics="znajomość używalność" data-year="2025" data-date="2025-12-06" data-word="ciucmok">
+  <header><h2>ciućmok</h2><p class=meta><time datetime="2025-12-06">6 grudnia 2025</time> · opis posta autora</p></header>
+  <p class=claim>Według autora używalność ciućmoka w ankiecie wyniosła około 30%, a znajomość była bliska 70%; używanie wyróżnia południe kraju. Autor zastrzega, że wynik znajomości może zawierać też znajomość formy ciućma.</p>
+  <ul class=chips aria-label="Miejsca wymienione w poście"><li>południe Polski</li></ul>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>używalność</span><span class="bar" role=img aria-label="używalność: ok. 30%"><span class=fill style="width:30%"></span></span><span class=fval>ok. 30%</span></li><li><span class=flabel>znajomość</span><span class="bar" role=img aria-label="znajomość: bliska 70%"><span class=fill style="width:70%"></span></span><span class=fval>bliska 70%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1381581076664742&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 6 grudnia 2025 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="zbiec-sie-w-praniu" data-search="zbiec sie w praniu autor opisuje wyrazenie jako uzywane wlasciwie w calym kraju; znajomosc: niecale 70%. znajomosc" data-metrics="znajomość używalność" data-year="2025" data-date="2025-11-09" data-word="zbiec sie w praniu">
+  <header><h2>zbiec się w praniu</h2><p class=meta><time datetime="2025-11-09">9 listopada 2025</time> · opis posta autora</p></header>
+  <p class=claim>Autor opisuje wyrażenie jako używane właściwie w całym kraju; znajomość: niecałe 70%.</p>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>znajomość</span><span class="bar max" role=img aria-label="znajomość: niecałe 70%"><span class=fill style="width:70%"></span></span><span class=fval>niecałe 70%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1361251558697694&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 9 listopada 2025 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="rajtki-krakow-warszawa" data-search="rajtki wedlug autora 91% respondentow z krakowa wskazalo, ze uzywa slowa rajtki; dla porownania w warszawie bylo to 38%. krakow warszawa krakow – uzywa warszawa – uzywa" data-metrics="używalność miejsca" data-year="2025" data-date="2025-10-24" data-word="rajtki">
+  <header><h2>rajtki</h2><p class=meta><time datetime="2025-10-24">24 października 2025</time> · opis posta autora</p></header>
+  <p class=claim>Według autora 91% respondentów z Krakowa wskazało, że używa słowa rajtki; dla porównania w Warszawie było to 38%.</p>
+  <ul class=chips aria-label="Miejsca wymienione w poście"><li>Kraków</li><li>Warszawa</li></ul>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>Kraków – używa</span><span class="bar" role=img aria-label="Kraków – używa: 91%"><span class=fill style="width:91%"></span></span><span class=fval>91%</span></li><li><span class=flabel>Warszawa – używa</span><span class="bar" role=img aria-label="Warszawa – używa: 38%"><span class=fill style="width:38%"></span></span><span class=fval>38%</span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1347930500029800&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 24 października 2025 <span aria-hidden=true>↗</span></a></p>
+</article>
+<article class=card id="ostrzolka-bydgoszcz" data-search="ostrzolka autor podaje liczby z ankiety: slowa ostrzolka uzywa 260 z 333 respondentow z bydgoszczy (78%) oraz 39 z 72 z powiatu bydgoskiego (54%). bydgoszcz powiat bydgoski bydgoszcz – uzywa powiat bydgoski – uzywa" data-metrics="używalność miejsca" data-year="2025" data-date="2025-08-24" data-word="ostrzolka">
+  <header><h2>ostrzółka</h2><p class=meta><time datetime="2025-08-24">24 sierpnia 2025</time> · opis posta autora</p></header>
+  <p class=claim>Autor podaje liczby z ankiety: słowa ostrzółka używa 260 z 333 respondentów z Bydgoszczy (78%) oraz 39 z 72 z powiatu bydgoskiego (54%).</p>
+  <ul class=chips aria-label="Miejsca wymienione w poście"><li>Bydgoszcz</li><li>powiat bydgoski</li></ul>
+  <ul class=figures aria-label="Wartości podane przez autora"><li><span class=flabel>Bydgoszcz – używa</span><span class="bar" role=img aria-label="Bydgoszcz – używa: 78% (260 z 333)"><span class=fill style="width:78%"></span></span><span class=fval>78% (260 z 333) <span class=n>n = 333</span></span></li><li><span class=flabel>powiat bydgoski – używa</span><span class="bar" role=img aria-label="powiat bydgoski – używa: 54% (39 z 72)"><span class=fill style="width:54%"></span></span><span class=fval>54% (39 z 72) <span class=n>n = 72</span></span></li></ul>
+  <p class=src><a href="https://www.facebook.com/photo.php?fbid=1297436688412515&amp;set=pb.100044385885452.-2207520000&amp;type=3" target=_blank rel="noopener noreferrer nofollow">Źródło: post Świetlan Maps na Facebooku, 24 sierpnia 2025 <span aria-hidden=true>↗</span></a></p>
+</article>
+</div>
+
+<footer>
+<h2>Prywatność i zakres</h2>
+<p>Strona zawiera wyłącznie fakty z opisów publicznych postów autora, przepisane własnymi słowami, z linkiem do źródła. Nie zawiera komentarzy, nazwisk uczestników ani materiałów z grup. Cytaty źródłowe służące weryfikacji są trzymane osobno, w prywatnym pliku, i nie trafiają na stronę. Strona nie ładuje zewnętrznych zasobów i nie zbiera danych.</p>
+<p>Mapy i ankiety: Świetlan Maps (Michał Świetliński) · Strona: <a href="https://x.com/itsTomekK">TomekK</a></p>
+</footer>
+</div>
+<noscript><p class="wrap">Filtrowanie wymaga JavaScriptu; wszystkie fakty są widoczne powyżej bez niego.</p></noscript>
+<script>
+(function(){
+  var fold=function(s){return s.toLowerCase().replace(/\u0142/g,'l').normalize('NFD').replace(/[\u0300-\u036f]/g,'');};
+  var q=document.getElementById('q'),yr=document.getElementById('year'),so=document.getElementById('sort'),
+      rs=document.getElementById('reset'),cnt=document.getElementById('count'),empty=document.getElementById('empty'),
+      list=document.getElementById('list'),cards=[].slice.call(list.children),total=cards.length;
+  var mets=[].slice.call(document.querySelectorAll('input[name=metric]'));
+  function apply(){
+    var terms=fold(q.value).split(/\s+/).filter(Boolean),
+        on=mets.filter(function(m){return m.checked;}).map(function(m){return m.value;}),
+        y=yr.value,shown=0;
+    cards.forEach(function(c){
+      var hay=c.dataset.search,cm=c.dataset.metrics.split(' '),ok=true;
+      terms.forEach(function(t){if(hay.indexOf(t)<0)ok=false;});
+      on.forEach(function(m){if(cm.indexOf(m)<0)ok=false;});
+      if(y&&c.dataset.year!==y)ok=false;
+      c.hidden=!ok;if(ok)shown++;
+    });
+    var s=so.value;
+    cards.slice().sort(function(a,b){
+      if(s==='word')return a.dataset.word.localeCompare(b.dataset.word,'pl');
+      var d=a.dataset.date<b.dataset.date?-1:a.dataset.date>b.dataset.date?1:0;
+      return s==='old'?d:-d;
+    }).forEach(function(c){list.appendChild(c);});
+    cnt.textContent='Pokazano '+shown+' z '+total+' faktów';
+    empty.hidden=shown!==0;
+  }
+  [q,yr,so].forEach(function(e){e.addEventListener('input',apply);e.addEventListener('change',apply);});
+  mets.forEach(function(m){m.addEventListener('change',apply);});
+  rs.addEventListener('click',function(){q.value='';yr.value='';so.value='new';mets.forEach(function(m){m.checked=false;});apply();q.focus();});
+  document.documentElement.setAttribute('data-ready','1');
+  apply();
+})();
+</script>
+</body>
+</html>
